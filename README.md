@@ -5,6 +5,7 @@ A JavaScript/TypeScript library for spelling out numbers in Vietnamese. Lightwei
 ## Demo & Resources
 
 - **Demo:** [https://npm-spell-vn-number.vincentchu.work/](https://npm-spell-vn-number.vincentchu.work/)
+- **Demo2:** [https://vincentchu161.github.io/spell-vn-number/examples/github-pages-demo.html](github-pages-demo.html)
 - **Repository:** [https://github.com/vincentchu161/spell-vn-number](https://github.com/vincentchu161/spell-vn-number)
 
 ## Installation
