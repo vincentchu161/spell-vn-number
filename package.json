@@ -1,6 +1,6 @@
 {
   "name": "spell-vn-number",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Vietnamese number speller",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -22,9 +22,7 @@
     "test:coverage": "jest --coverage",
     "clean": "rimraf dist coverage"
   },
-  "homepage": [
-    "https://npm-spell-vn-number.vincentchu.work/"
-  ],
+  "homepage": "https://npm-spell-vn-number.vincentchu.work/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vincentchu161/spell-vn-number.git"

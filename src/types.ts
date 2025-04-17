@@ -1,4 +1,21 @@
-export type InputNumber = string | number;
+export type InputNumber = string | number | bigint;
+
+/**
+ * Options for normalizing number strings
+ */
+export interface NormalizeOptions {
+  /**
+   * Custom thousands separator character
+   * @default ','
+   */
+  thousandSign?: string;
+
+  /**
+   * Custom decimal point character
+   * @default '.'
+   */
+  decimalPoint?: string;
+}
 
 export interface NumberData {
   isNegative: boolean;
@@ -29,21 +46,19 @@ export class InvalidNumberError extends Error {
 export class SpellerConfig {
   separator: string = ' ';
   negativeSign: string = '-';
-  pointSign: string = '.';
+  decimalPoint: string = '.';
   thousandSign: string = ',';
-  periodSize: number = 3;
   filledDigit: string = '0';
-  // Controls how to handle redundant zeros
-  keepTrailingZero: boolean = false; // When true, '000.000' -> '0.0', when false, '000.000' -> '0.'
-  keepLeadingPointZero: boolean = true; // When true, '00.001' -> '0.001', when false, '00.001' -> '.001'
+  // Controls how to handle redundant zeros in decimal part
+  keepOneZeroWhenAllZeros: boolean = false; // When true, keeps a single '0' after decimal point when all decimal digits are zeros (e.g., '123.000' -> '123.0')
+                                           // When false, removes all trailing zeros and keeps only the decimal point (e.g., '123.000' -> '123.')
 
   // Vietnamese specific text
   negativeText: string = 'âm';
   pointText: string = 'chấm';
+
   oddText: string = 'lẻ';
   tenText: string = 'mười';
-  tenToneText: string = 'mươi';
-  hundredText: string = 'trăm';
 
   oneToneText: string = 'mốt';
   fourToneText: string = 'tư';
@@ -66,6 +81,12 @@ export class SpellerConfig {
   // Unit group names
   UNIT_GROUP: string[] = ['BILLION', 'MINION', 'THOUSAND'];
 
+  UNIT_OF_GROUP: Record<string, string> = {
+    'BILLION': 'tỷ',
+    'MINION': 'triệu',
+    'THOUSAND': 'nghìn',
+  };
+
   // Unit mapping
   UNIT_GROUP_MAPPER: Record<string, string[]> = {
     'BILLION': ['trăm', 'mươi', 'triệu'],
@@ -73,14 +94,10 @@ export class SpellerConfig {
     'THOUSAND': ['trăm', 'mươi', ''],
   };
 
-  UNIT_OF_GROUP: Record<string, string> = {
-    'BILLION': 'tỷ',
-    'MINION': 'triệu',
-    'THOUSAND': 'nghìn',
-  };
-
   // Constants for positions in a group
   UNIT_EACH_GROUP: string[] = ['HUNDRED', 'TENS', 'UNITS'];
+
+  // Index of UNIT_EACH_GROUP
   AT_HUNDRED: number = 0;
   AT_TEN: number = 1;
   AT_UNIT: number = 2;
