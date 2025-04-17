@@ -23,7 +23,7 @@
     "clean": "rimraf dist coverage"
   },
   "homepage": [
-    "https://npm.spell-vn-number.vincentchu.work/",
+    "https://npm-spell-vn-number.vincentchu.work/",
     "https://github.com/vincentchu161/spell-vn-number"
   ],
   "repository": {

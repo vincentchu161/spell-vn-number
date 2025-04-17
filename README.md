@@ -4,7 +4,7 @@ A JavaScript/TypeScript library for spelling out numbers in Vietnamese. Lightwei
 
 ## Demo & Resources
 
-- **Demo:** [https://npm.spell-vn-number.vincentchu.work/](https://npm.spell-vn-number.vincentchu.work/)
+- **Demo:** [https://npm-spell-vn-number.vincentchu.work/](https://npm-spell-vn-number.vincentchu.work/)
 - **Repository:** [https://github.com/vincentchu161/spell-vn-number](https://github.com/vincentchu161/spell-vn-number)
 
 ## Installation
