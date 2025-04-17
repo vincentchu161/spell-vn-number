@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>spell-vn-number - Vietnamese Number Speller</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    input, button {
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+      min-height: 50px;
+    }
+    .examples {
+      margin-top: 20px;
+    }
+    .example-item {
+      cursor: pointer;
+      padding: 5px;
+      margin: 5px 0;
+      background-color: #eee;
+      border-radius: 3px;
+      display: inline-block;
+    }
+    .author-info {
+      margin-top: 30px;
+      padding: 15px;
+      border-top: 1px solid #ddd;
+      text-align: center;
+    }
+    .author-info a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+    .author-info a:hover {
+      text-decoration: underline;
+    }
+    .github-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .github-link svg {
+      width: 24px;
+      height: 24px;
+    }
+    .installation {
+      background-color: #f6f8fa;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 20px;
+    }
+    pre {
+      background-color: #f1f1f1;
+      padding: 10px;
+      overflow-x: auto;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>spell-vn-number</h1>
+  <p>A lightweight JavaScript/TypeScript library for spelling out numbers in Vietnamese</p>
+  
+  <div class="installation">
+    <h3>Installation</h3>
+    <pre>npm install spell-vn-number</pre>
+  </div>
+  
+  <div class="container">
+    <div class="input-group">
+      <label for="number-input">Nhập số (Enter a number):</label>
+      <input type="text" id="number-input" placeholder="Ví dụ: 123,456.789">
+      <button id="spell-button">Chuyển đổi (Convert)</button>
+    </div>
+    
+    <div>
+      <h3>Kết quả (Result):</h3>
+      <div id="result" class="result"></div>
+    </div>
+    
+    <div class="examples">
+      <h3>Các ví dụ (Examples):</h3>
+      <div id="examples-container">
+        <span class="example-item">123</span>
+        <span class="example-item">1,234</span>
+        <span class="example-item">10,001</span>
+        <span class="example-item">100,000,000</span>
+        <span class="example-item">-12,345.67</span>
+        <span class="example-item">0.123</span>
+        <span class="example-item">1000000000000000</span>
+      </div>
+    </div>
+
+    <div class="custom-config">
+      <h3>Tùy chỉnh (Custom Configuration):</h3>
+      <div class="input-group">
+        <label>
+          <input type="checkbox" id="custom-separator"> 
+          Sử dụng dấu gạch ngang (-) thay vì khoảng trắng
+        </label>
+        <label>
+          <input type="checkbox" id="custom-decimal"> 
+          Sử dụng "phẩy" thay vì "chấm"
+        </label>
+        <label>
+          <input type="checkbox" id="keep-zeros"> 
+          Giữ số 0 ở cuối (Keep trailing zeros)
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="author-info">
+    <h3>Author</h3>
+    <p>vincentchu</p>
+    <p><a href="mailto:contact@vincentchu.work">contact@vincentchu.work</a></p>
+    <p><a href="https://resume.vincentchu.work/" target="_blank">https://resume.vincentchu.work/</a></p>
+    
+    <div class="github-link">
+      <svg viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+      </svg>
+      <a href="https://github.com/vincentchu161/spell-vn-number" target="_blank">
+        github.com/vincentchu161/spell-vn-number
+      </a>
+    </div>
+  </div>
+
+  <!-- Load the library from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/spell-vn-number"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const inputEl = document.getElementById('number-input');
+      const resultEl = document.getElementById('result');
+      const spellButton = document.getElementById('spell-button');
+      const examplesContainer = document.getElementById('examples-container');
+      const customSeparator = document.getElementById('custom-separator');
+      const customDecimal = document.getElementById('custom-decimal');
+      const keepZeros = document.getElementById('keep-zeros');
+      
+      // Function to spell the number
+      function spellNumber() {
+        const number = inputEl.value.trim();
+        if (!number) {
+          resultEl.textContent = 'Vui lòng nhập số (Please enter a number)';
+          return;
+        }
+        
+        try {
+          // Check if we need to use custom configuration
+          if (customSeparator.checked || customDecimal.checked || keepZeros.checked) {
+            // Create a custom config
+            const config = new spellVnNumber.SpellerConfig({
+              separator: customSeparator.checked ? '-' : ' ',
+              pointText: customDecimal.checked ? 'phẩy' : 'chấm',
+              keepTrailingZero: keepZeros.checked
+            });
+            
+            // Use the spellVnNumber function with custom config
+            const spelled = spellVnNumber.spellVnNumber(config, number);
+            resultEl.textContent = spelled;
+          } else {
+            // Use the default spell function
+            const spelled = spellVnNumber.spell(number);
+            resultEl.textContent = spelled;
+          }
+        } catch (error) {
+          resultEl.textContent = `Lỗi (Error): ${error.message}`;
+        }
+      }
+      
+      // Add click event for the spell button
+      spellButton.addEventListener('click', spellNumber);
+      
+      // Add enter key event for the input
+      inputEl.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          spellNumber();
+        }
+      });
+      
+      // Add click events for example items
+      examplesContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('example-item')) {
+          inputEl.value = e.target.textContent;
+          spellNumber();
+        }
+      });
+
+      // Add change events for custom config options to update the result
+      customSeparator.addEventListener('change', spellNumber);
+      customDecimal.addEventListener('change', spellNumber);
+      keepZeros.addEventListener('change', spellNumber);
+    });
+  </script>
+</body>
+</html> 

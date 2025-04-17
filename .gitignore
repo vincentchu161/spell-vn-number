@@ -1,0 +1,9 @@
+private/
+node_modules/
+dist/
+coverage/
+.cache/
+.vscode/
+.idea/
+*.tgz
+.DS_Store
