@@ -23,13 +23,13 @@ npm install spell-vn-number
 import { spell } from 'spell-vn-number';
 
 console.log(spell('123456')); 
-// "một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
+// "Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
 
 console.log(spell('1,234.56')); 
-// "một nghìn hai trăm ba mươi bốn chấm năm mươi sáu"
+// "Một nghìn hai trăm ba mươi tư chấm năm mươi sáu"
 
 console.log(spell('-1000000')); 
-// "âm một triệu"
+// "Âm một triệu"
 ```
 
 ### Browser Usage
@@ -46,7 +46,7 @@ You can use the library directly in the browser via CDN:
 <script>
   // Use the global spellVnNumber object
   console.log(spellVnNumber.spell('123456')); 
-  // "một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
+  // "Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
 </script>
 ```
 
@@ -60,17 +60,16 @@ import { spellVnNumber, SpellerConfig } from 'spell-vn-number';
 const customConfig = new SpellerConfig({
   separator: '-',   // Change word separator
   pointText: 'phẩy', // Change decimal point text
-  // When the decimal part is all zeros, it will always remain a zero.
-  keepOneZeroWhenAllZeros: true, // When true, '000.000' -> '0.0' (spell: không chấm không), when false, '000.000' -> '0.' (spell: không)
-  // You can customize more properties as needed
+  keepOneZeroWhenAllZeros: true, // Keep one zero when all decimal digits are zeros
+  capitalizeInitial: true, // Capitalize the first letter of the spelled number (default: true)
 });
 
 console.log(spellVnNumber(customConfig, '123.45'));
-// "một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
+// "Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
 console.log(spellVnNumber(customConfig, '123.4500'));
-// "một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
+// "Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
 console.log(spellVnNumber(customConfig, '123.000'));
-// "một-trăm-hai-mươi-ba-phẩy-không"
+// "Một-trăm-hai-mươi-ba-phẩy-không"
 ```
 
 ### Using Utility Functions
@@ -199,6 +198,7 @@ Configuration class with the following properties:
 - `negativeSign`: Negative sign (default: '-')
 - `pointSign`: Decimal point (default: '.')
 - `thousandSign`: Thousands separator (default: ',')
+- `capitalizeInitial`: Capitalize the first letter of the spelled number (default: false)
 - `keepOneZeroWhenAllZeros`: Controls how to handle redundant zeros (default: false); When the decimal part is all zeros, it will always remain a zero.
   - When `true`: '000.000' -> '0.0' (spelled: không chấm không)
   - When `false`: '000.000' -> '0.' (spelled: không)

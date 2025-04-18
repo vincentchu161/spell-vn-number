@@ -145,6 +145,10 @@
           <input type="checkbox" id="keep-zeros">
           Giữ phần thập phân có một số không nếu trống (Keep the decimal part as zero if it is empty)
         </label>
+        <label>
+          <input type="checkbox" id="capitalize-initial">
+          Viết hoa chữ cái đầu tiên (Capitalize the first letter)
+        </label>
       </div>
     </div>
   </div>
@@ -186,6 +190,7 @@
       const customSeparator = document.getElementById('custom-separator');
       const customDecimal = document.getElementById('custom-decimal');
       const keepZeros = document.getElementById('keep-zeros');
+      const capitalizeInitial = document.getElementById('capitalize-initial');
 
       // Function to spell the number
       function spellNumber() {
@@ -197,12 +202,13 @@
 
         try {
           // Check if we need to use custom configuration
-          if (customSeparator.checked || customDecimal.checked || keepZeros.checked) {
+          if (customSeparator.checked || customDecimal.checked || keepZeros.checked || capitalizeInitial.checked) {
             // Create a custom config
             const config = new spellVnNumber.SpellerConfig({
               separator: customSeparator.checked ? '-' : ' ',
               pointText: customDecimal.checked ? 'phẩy' : 'chấm',
-              keepOneZeroWhenAllZeros: keepZeros.checked
+              keepOneZeroWhenAllZeros: keepZeros.checked,
+              capitalizeInitial: capitalizeInitial.checked
             });
 
             // Use the spellVnNumber function with custom config
@@ -238,6 +244,7 @@
       customSeparator.addEventListener('change', spellNumber);
       customDecimal.addEventListener('change', spellNumber);
       keepZeros.addEventListener('change', spellNumber);
+      capitalizeInitial.addEventListener('change', spellNumber);
     });
   </script>
 </body>

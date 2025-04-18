@@ -304,7 +304,14 @@ export function spellVnNumber(config: SpellerConfig, input: InputNumber): string
   }
 
   // Join all parts with the separator
-  return numbSpelled.join(config.separator);
+  let result = numbSpelled.join(config.separator);
+
+  // Capitalize the first letter if capitalizeInitial is true
+  if (config.capitalizeInitial) {
+    result = result.charAt(0).toUpperCase() + result.slice(1);
+  }
+
+  return result;
 }
 
 /**

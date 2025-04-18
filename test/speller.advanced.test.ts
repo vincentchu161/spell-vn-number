@@ -24,7 +24,7 @@ describe('Advanced Vietnamese Number Speller Tests', () => {
       const config = new SpellerConfig();
       const maxSafeInt = Number.MAX_SAFE_INTEGER.toString();
       expect(spellVnNumber(config, maxSafeInt)).toBeTruthy();
-      
+
       // Beyond max safe integer
       const beyondMaxSafe = BigInt(Number.MAX_SAFE_INTEGER) + BigInt(1);
       expect(spellVnNumber(config, beyondMaxSafe.toString())).toBeTruthy();
@@ -45,9 +45,9 @@ describe('Advanced Vietnamese Number Speller Tests', () => {
           'THOUSAND': ['trăm', 'mươi', ''],
         }
       });
-      
-      expect(spellVnNumber(customConfig, '1,000')).toBe('một ngàn');
-      expect(spellVnNumber(customConfig, '1,000,000,000')).toBe('một tỉ');
+
+      expect(spellVnNumber(customConfig, '1,000')).toBe('Một ngàn');
+      expect(spellVnNumber(customConfig, '1,000,000,000')).toBe('Một tỉ');
     });
 
     it('should handle custom digit names', () => {
@@ -65,31 +65,31 @@ describe('Advanced Vietnamese Number Speller Tests', () => {
           9: 'chín',
         }
       });
-      
-      expect(spellVnNumber(customConfig, '45')).toBe('tư mươi lăm');
+
+      expect(spellVnNumber(customConfig, '45')).toBe('Tư mươi lăm');
     });
 
     it('should handle different decimal point text', () => {
       const customConfig = new SpellerConfig({
         pointText: 'phẩy'   // Changed from 'chấm'
       });
-      
-      expect(spellVnNumber(customConfig, '1.5')).toBe('một phẩy năm');
+
+      expect(spellVnNumber(customConfig, '1.5')).toBe('Một phẩy năm');
     });
 
     it('should handle different separators', () => {
       const customConfig = new SpellerConfig({
         separator: '_'   // Changed from space
       });
-      
-      expect(spellVnNumber(customConfig, '123')).toBe('một_trăm_hai_mươi_ba');
+
+      expect(spellVnNumber(customConfig, '123')).toBe('Một_trăm_hai_mươi_ba');
     });
 
     it('should handle custom decimal handling configuration', () => {
       const config = new SpellerConfig({
         keepOneZeroWhenAllZeros: true
       });
-      
+
       expect(spellVnNumber(config, '10.0')).toContain('chấm không');
     });
   });
@@ -97,53 +97,53 @@ describe('Advanced Vietnamese Number Speller Tests', () => {
   describe('Special cases in Vietnamese spelling', () => {
     it('should handle the special "lẻ" case correctly', () => {
       const config = new SpellerConfig();
-      
+
       // Cases where "lẻ" should be used
-      expect(spellVnNumber(config, '101')).toBe('một trăm lẻ một');
-      expect(spellVnNumber(config, '1001')).toBe('một nghìn không trăm lẻ một');
-      expect(spellVnNumber(config, '10001')).toBe('mười nghìn không trăm lẻ một');
-      
+      expect(spellVnNumber(config, '101')).toBe('Một trăm lẻ một');
+      expect(spellVnNumber(config, '1001')).toBe('Một nghìn không trăm lẻ một');
+      expect(spellVnNumber(config, '10001')).toBe('Mười nghìn không trăm lẻ một');
+
       // Cases where "lẻ" should not be used
-      expect(spellVnNumber(config, '110')).toBe('một trăm mười');
-      expect(spellVnNumber(config, '1010')).toBe('một nghìn không trăm mười');
+      expect(spellVnNumber(config, '110')).toBe('Một trăm mười');
+      expect(spellVnNumber(config, '1010')).toBe('Một nghìn không trăm mười');
     });
 
     it('should handle special pronunciation rules for "một", "tư", "lăm"', () => {
       const config = new SpellerConfig();
-      
+
       // Special cases for "một" -> "mốt"
-      expect(spellVnNumber(config, '21')).toBe('hai mươi mốt');
-      expect(spellVnNumber(config, '31')).toBe('ba mươi mốt');
-      
+      expect(spellVnNumber(config, '21')).toBe('Hai mươi mốt');
+      expect(spellVnNumber(config, '31')).toBe('Ba mươi mốt');
+
       // Special cases for "bốn" -> "tư"
-      expect(spellVnNumber(config, '24')).toBe('hai mươi tư');
-      expect(spellVnNumber(config, '34')).toBe('ba mươi tư');
-      
+      expect(spellVnNumber(config, '24')).toBe('Hai mươi tư');
+      expect(spellVnNumber(config, '34')).toBe('Ba mươi tư');
+
       // Special cases for "năm" -> "lăm"
-      expect(spellVnNumber(config, '25')).toBe('hai mươi lăm');
-      expect(spellVnNumber(config, '35')).toBe('ba mươi lăm');
-      
+      expect(spellVnNumber(config, '25')).toBe('Hai mươi lăm');
+      expect(spellVnNumber(config, '35')).toBe('Ba mươi lăm');
+
       // Regular usage
-      expect(spellVnNumber(config, '1')).toBe('một');
-      expect(spellVnNumber(config, '4')).toBe('bốn');
-      expect(spellVnNumber(config, '5')).toBe('năm');
+      expect(spellVnNumber(config, '1')).toBe('Một');
+      expect(spellVnNumber(config, '4')).toBe('Bốn');
+      expect(spellVnNumber(config, '5')).toBe('Năm');
     });
   });
 
   describe('Convenience function (spell) with additional tests', () => {
     it('should handle compact input formats correctly', () => {
       // Without separators
-      expect(spell('1234567')).toBe('một triệu hai trăm ba mươi tư nghìn năm trăm sáu mươi bảy');
-      
+      expect(spell('1234567')).toBe('Một triệu hai trăm ba mươi tư nghìn năm trăm sáu mươi bảy');
+
       // With various types of input
-      expect(spell(1234567)).toBe('một triệu hai trăm ba mươi tư nghìn năm trăm sáu mươi bảy');
-      expect(spell(BigInt('1234567'))).toBe('một triệu hai trăm ba mươi tư nghìn năm trăm sáu mươi bảy');
+      expect(spell(1234567)).toBe('Một triệu hai trăm ba mươi tư nghìn năm trăm sáu mươi bảy');
+      expect(spell(BigInt('1234567'))).toBe('Một triệu hai trăm ba mươi tư nghìn năm trăm sáu mươi bảy');
     });
-    
+
     it('should handle complex combinations of numbers', () => {
         expect(spell('1,000,200,034,000,567,890')).toBe(
-            'một tỷ hai trăm nghìn không trăm ba mươi tư tỷ năm trăm sáu mươi bảy nghìn tám trăm chín mươi'
+            'Một tỷ hai trăm nghìn không trăm ba mươi tư tỷ năm trăm sáu mươi bảy nghìn tám trăm chín mươi'
           );
     });
   });
-}); 
+});
