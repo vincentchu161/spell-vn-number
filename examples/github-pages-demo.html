@@ -202,7 +202,7 @@
 
         try {
           // Check if we need to use custom configuration
-          if (customSeparator.checked || customDecimal.checked || keepZeros.checked || capitalizeInitial.checked) {
+          if (customSeparator.checked || customDecimal.checked || keepZeros.checked || !capitalizeInitial.checked) {
             // Create a custom config
             const config = new spellVnNumber.SpellerConfig({
               separator: customSeparator.checked ? '-' : ' ',
