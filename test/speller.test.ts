@@ -164,5 +164,13 @@ describe('Vietnamese Number Speller', () => {
       expect(spellVnNumber(config, '1,234.56')).toBe('một nghìn hai trăm ba mươi tư chấm năm mươi sáu');
       expect(spellVnNumber(config, '-1000000')).toBe('âm một triệu');
     });
+
+    it('should append currency unit when provided', () => {
+      const configWithCurrency = new SpellerConfig({
+        currencyUnit: 'đồng',
+      });
+      expect(spellVnNumber(configWithCurrency, '123456')).toBe('Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu đồng');
+      expect(spellVnNumber(configWithCurrency, '1,234.56')).toBe('Một nghìn hai trăm ba mươi tư chấm năm mươi sáu đồng');
+    });
   });
 });

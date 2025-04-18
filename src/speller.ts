@@ -311,6 +311,11 @@ export function spellVnNumber(config: SpellerConfig, input: InputNumber): string
     result = result.charAt(0).toUpperCase() + result.slice(1);
   }
 
+  // After joining all parts, append the currency unit if provided
+  if (config.currencyUnit) {
+    result += ` ${config.currencyUnit}`;
+  }
+
   return result;
 }
 

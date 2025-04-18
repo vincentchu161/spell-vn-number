@@ -7,7 +7,7 @@ import {InputNumber, InvalidFormatError, InvalidNumberError, NormalizeOptions, S
  * @returns A valid string representation of the number
  */
 export function cleanInputNumber(input: InputNumber, config: NormalizeOptions): string {
-  if (input === null || input === undefined) {
+  if (input === null || input === undefined || input === '') {
     throw new InvalidFormatError('Input cannot be null or undefined');
   }
 

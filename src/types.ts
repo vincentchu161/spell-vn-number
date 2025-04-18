@@ -50,7 +50,9 @@ export class SpellerConfig {
   thousandSign: string = ',';
   filledDigit: string = '0';
   
-  capitalizeInitial: boolean = true;
+  capitalizeInitial: boolean = true;  
+  currencyUnit?: string = ''; // option for currency unit
+
   // Controls how to handle redundant zeros in decimal part
   keepOneZeroWhenAllZeros: boolean = false; // When true, keeps a single '0' after decimal point when all decimal digits are zeros (e.g., '123.000' -> '123.0')
                                            // When false, removes all trailing zeros and keeps only the decimal point (e.g., '123.000' -> '123.')
