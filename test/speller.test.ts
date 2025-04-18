@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { spell, spellVnNumber, SpellerConfig, InvalidNumberError } from '../src';
+import { spell, spellVnNumber, spellOrDefault, SpellerConfig, InvalidNumberError } from '../src';
 
 describe('Vietnamese Number Speller', () => {
   // Test convenience function
@@ -171,6 +171,20 @@ describe('Vietnamese Number Speller', () => {
       });
       expect(spellVnNumber(configWithCurrency, '123456')).toBe('Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu đồng');
       expect(spellVnNumber(configWithCurrency, '1,234.56')).toBe('Một nghìn hai trăm ba mươi tư chấm năm mươi sáu đồng');
+    });
+  });
+
+  describe('spellOrDefault function', () => {
+    it('should return spelled number for valid input', () => {
+      const config = { separator: ' ', pointText: 'phẩy' };
+      const defaultText = 'Invalid number';
+      expect(spellOrDefault('123456', config, defaultText)).toBe('Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu');
+    });
+
+    it('should return default text for invalid input', () => {
+      const config = { separator: ' ', pointText: 'phẩy' };
+      const defaultText = 'Invalid number';
+      expect(spellOrDefault('abc', config, defaultText)).toBe('Invalid number');
     });
   });
 });

@@ -1,4 +1,4 @@
-import {InputNumber, NumberData, SpellerConfig} from './types';
+import {InputNumber, InvalidFormatError, InvalidNumberError, NumberData, SpellerConfig} from './types';
 import {cleanInputNumber, handleRedundantZeros} from './utils';
 
 /**
@@ -327,4 +327,28 @@ export function spellVnNumber(config: SpellerConfig, input: InputNumber): string
 export function spell(input: InputNumber): string {
   const config = new SpellerConfig();
   return spellVnNumber(config, input);
+}
+
+/**
+ * Convenience function to spell a Vietnamese number with default value on error
+ * @param input Number to spell
+ * @param subConfig
+ * @param defaultOnError
+ * @returns Vietnamese spelling of the number
+ */
+export function spellOrDefault(input: InputNumber, subConfig: object, defaultOnError: string): string {
+  try {
+    const config = new SpellerConfig(subConfig);
+    return spellVnNumber(config, input);
+  } catch (err) {
+    if (err instanceof InvalidFormatError) {
+      console.error('Định dạng input không hợp lệ')
+    } else if (err instanceof InvalidNumberError) {
+      console.error('Số không hợp lệ')
+    } else {
+      console.error(err)
+    }
+
+    return defaultOnError;
+  }
 }

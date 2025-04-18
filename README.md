@@ -55,8 +55,9 @@ You can use the library directly in the browser via CDN:
 You can customize the spelling using the `SpellerConfig` class and the `spellVnNumber` function:
 
 ```javascript
-import { spellVnNumber, SpellerConfig } from 'spell-vn-number';
+import { spellVnNumber, spellOrDefault, SpellerConfig } from 'spell-vn-number';
 
+// Method: spellVnNumber
 const customConfig = new SpellerConfig({
   separator: '-',   // Change word separator
   pointText: 'phẩy', // Change decimal point text
@@ -70,6 +71,17 @@ console.log(spellVnNumber(customConfig, '123.4500'));
 // "Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
 console.log(spellVnNumber(customConfig, '123.000'));
 // "Một-trăm-hai-mươi-ba-phẩy-không"
+
+// Method: spellOrDefault
+const input = '123456';
+const config = { separator: ' ', pointText: 'phẩy' };
+const defaultText = 'Invalid number';
+
+console.log(spellOrDefault(input, config, defaultText));
+// Output: "Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
+
+console.log(spellOrDefault('abc', config, defaultText));
+// Output: "Invalid number"
 ```
 
 ### Currency Unit
