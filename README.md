@@ -72,6 +72,21 @@ console.log(spellVnNumber(customConfig, '123.000'));
 // "Một-trăm-hai-mươi-ba-phẩy-không"
 ```
 
+### Currency Unit
+
+You can append a currency unit to the spelled number by setting the `currencyUnit` option in the `SpellerConfig` class. By default, this is an empty string, meaning no currency unit is appended. If a value is provided, it will be added to the end of the spelled number.
+
+```javascript
+import { spellVnNumber, SpellerConfig } from 'spell-vn-number';
+
+const configWithCurrency = new SpellerConfig({
+  currencyUnit: 'đồng',
+});
+
+console.log(spellVnNumber(configWithCurrency, '123456'));
+// "Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu đồng"
+```
+
 ### Using Utility Functions
 
 The library also exports utility functions that can be used independently:

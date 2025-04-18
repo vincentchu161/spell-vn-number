@@ -91,6 +91,19 @@
       overflow-x: auto;
       border-radius: 4px;
     }
+    input[type="text"]#currency-unit {
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]#currency-unit:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
   </style>
 </head>
 <body>
@@ -150,6 +163,9 @@
           Viết hoa chữ cái đầu tiên (Capitalize the first letter)
         </label>
       </div>
+      <label>
+        <input type="text" id="currency-unit" placeholder="Đơn vị tiền tệ (Currency unit)">
+      </label>
     </div>
   </div>
 
@@ -191,6 +207,7 @@
       const customDecimal = document.getElementById('custom-decimal');
       const keepZeros = document.getElementById('keep-zeros');
       const capitalizeInitial = document.getElementById('capitalize-initial');
+      const currencyUnit = document.getElementById('currency-unit');
 
       // Function to spell the number
       function spellNumber() {
@@ -202,15 +219,18 @@
 
         try {
           // Check if we need to use custom configuration
-          if (customSeparator.checked || customDecimal.checked || keepZeros.checked || !capitalizeInitial.checked) {
+          if (customSeparator.checked || customDecimal.checked || keepZeros.checked
+                               || !capitalizeInitial.checked || currencyUnit.value.trim()) {
             // Create a custom config
             const config = new spellVnNumber.SpellerConfig({
               separator: customSeparator.checked ? '-' : ' ',
               pointText: customDecimal.checked ? 'phẩy' : 'chấm',
               keepOneZeroWhenAllZeros: keepZeros.checked,
-              capitalizeInitial: capitalizeInitial.checked
+              capitalizeInitial: capitalizeInitial.checked,
+              currencyUnit: currencyUnit.value.trim()
             });
 
+            console.log('custom config', config);
             // Use the spellVnNumber function with custom config
             resultEl.textContent = spellVnNumber.spellVnNumber(config, number);
           } else {
@@ -245,6 +265,7 @@
       customDecimal.addEventListener('change', spellNumber);
       keepZeros.addEventListener('change', spellNumber);
       capitalizeInitial.addEventListener('change', spellNumber);
+      currencyUnit.addEventListener('change', spellNumber);
     });
   </script>
 </body>
