@@ -60,17 +60,16 @@ import { spellVnNumber, SpellerConfig } from 'spell-vn-number';
 const customConfig = new SpellerConfig({
   separator: '-',   // Change word separator
   pointText: 'phẩy', // Change decimal point text
-  // When the decimal part is all zeros, it will always remain a zero.
-  keepOneZeroWhenAllZeros: true, // When true, '000.000' -> '0.0' (spell: không chấm không), when false, '000.000' -> '0.' (spell: không)
-  // You can customize more properties as needed
+  keepOneZeroWhenAllZeros: true, // Keep one zero when all decimal digits are zeros
+  capitalizeInitial: true, // Capitalize the first letter of the spelled number
 });
 
 console.log(spellVnNumber(customConfig, '123.45'));
-// "một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
+// "Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
 console.log(spellVnNumber(customConfig, '123.4500'));
-// "một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
+// "Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
 console.log(spellVnNumber(customConfig, '123.000'));
-// "một-trăm-hai-mươi-ba-phẩy-không"
+// "Một-trăm-hai-mươi-ba-phẩy-không"
 ```
 
 ### Using Utility Functions
