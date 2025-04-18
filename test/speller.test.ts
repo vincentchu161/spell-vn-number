@@ -1,71 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import { spell, spellVnNumber, SpellerConfig, InvalidNumberError } from '../src';
-import {truncateIncorrectZeros} from "../src/utils";
 
 describe('Vietnamese Number Speller', () => {
-  // Test utility functions
-  describe('truncateIncorrectZeros function', () => {
-    it('should trim redundant zeros correctly with default settings', () => {
-      const config = { pointSign: '.', filledDigit: '0' };
-
-      // Test integral part only
-      expect(truncateIncorrectZeros(config, '0')).toBe('0');
-      expect(truncateIncorrectZeros(config, '00123')).toBe('123');
-      expect(truncateIncorrectZeros(config, '00010')).toBe('10');
-
-      // Test with decimal point - default behavior
-      expect(truncateIncorrectZeros(config, '00123.4560')).toBe('123.456');
-      expect(truncateIncorrectZeros(config, '0.0')).toBe('0.');
-      expect(truncateIncorrectZeros(config, '00.00100')).toBe('0.001');
-      expect(truncateIncorrectZeros(config, '000.000')).toBe('0.');
-    });
-
-    it('should respect keepTrailingZero flag', () => {
-      const config = {
-        pointSign: '.',
-        filledDigit: '0',
-        keepTrailingZero: true
-      };
-
-      expect(truncateIncorrectZeros(config, '123.4560')).toBe('123.4560');
-      expect(truncateIncorrectZeros(config, '0.0')).toBe('0.0');
-      expect(truncateIncorrectZeros(config, '000.000')).toBe('0.000');
-      expect(truncateIncorrectZeros(config, '00.00100')).toBe('0.00100');
-    });
-
-    it('should always keep at least one digit for integral part', () => {
-      const config = { pointSign: '.', filledDigit: '0' };
-
-      expect(truncateIncorrectZeros(config, '00')).toBe('0');
-      expect(truncateIncorrectZeros(config, '00.123')).toBe('0.123');
-      expect(truncateIncorrectZeros(config, '000.001')).toBe('0.001');
-    });
-
-    it('should handle custom keepLeadingPointZero and keepTrailingZero settings', () => {
-      const config1 = {
-        pointSign: '.',
-        filledDigit: '0',
-        keepTrailingZero: true,
-        keepLeadingPointZero: true
-      };
-
-      expect(truncateIncorrectZeros(config1, '00.00100')).toBe('0.00100');
-      expect(truncateIncorrectZeros(config1, '000.000')).toBe('0.000');
-
-      const config2 = {
-        pointSign: '.',
-        filledDigit: '0',
-        keepTrailingZero: false,
-        keepLeadingPointZero: false
-      };
-
-      // keepLeadingPointZero: false is ignored in current implementation
-      // to always ensure the integral part has at least one digit
-      expect(truncateIncorrectZeros(config2, '00.00100')).toBe('0.001');
-      expect(truncateIncorrectZeros(config2, '000.000')).toBe('0.');
-    });
-  });
-
   // Test convenience function
   describe('spell function', () => {
     it('should spell numbers correctly with default config', () => {

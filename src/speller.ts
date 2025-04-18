@@ -1,5 +1,5 @@
-import { InputNumber, NumberData, SpellerConfig } from './types';
-import {validateNumber, truncateIncorrectZeros, removeThousandsSeparators} from './utils';
+import {InputNumber, NumberData, SpellerConfig} from './types';
+import {cleanInputNumber, handleRedundantZeros} from './utils';
 
 /**
  * Process a section of the number by splitting it into groups and spelling each group
@@ -38,7 +38,7 @@ function processPart(config: SpellerConfig, numberStr: string): string[] {
 
   while (remainingGroups > 0) {
     // THOUSAND/MILLION/BILLION (Unit of UNIT_GROUP)
-    if (!isFirst && groupEachPeriodIndex === 0) {
+    if (!isFirst) {
       // Add unit for the group
       const unit = config.UNIT_OF_GROUP[config.UNIT_GROUP[groupEachPeriodIndex]];
       numbSpelled.push(unit);
@@ -95,8 +95,8 @@ function firstSpellThreeDigit(config: SpellerConfig, arrNumb: string[], groupEac
   }
 
   // If all digits are zero, return "không"
-  if (spelled.length === 0 && arrNumb[0] === '0' && arrNumb[1] === '0' && arrNumb[2] === '0') {
-    spelled.push(config.digits['0']); // todo... return ""
+  if (spelled.length === 0) {
+    spelled.push(config.digits['0']);
   }
 
   return spelled;
@@ -244,22 +244,22 @@ function spellSpecialDigit(
 /**
  * Parse a number string into structured number data
  * @param config SpellerConfig instance
- * @param numberStr Number string to parse
+ * @param input InputNumber
  * @returns Structured number data
  */
-function parseNumberData(config: SpellerConfig, numberStr: string): NumberData {
-  // Remove thousands separators
-  numberStr = removeThousandsSeparators(config, numberStr);
+function parseNumberData(config: SpellerConfig, input: InputNumber): NumberData {
+  // Clean and validate input
+  let numberStr = cleanInputNumber(input, config);
 
   // Handle negative sign
   const isNegative = numberStr.startsWith(config.negativeSign);
   numberStr = isNegative ? numberStr.substring(config.negativeSign.length) : numberStr;
 
   // Trim redundant zeros
-  numberStr = truncateIncorrectZeros(config, numberStr);
+  numberStr = handleRedundantZeros(config, numberStr);
 
   // Split into integral and fractional parts
-  const pointPos = numberStr.indexOf(config.pointSign);
+  const pointPos = numberStr.indexOf(config.decimalPoint);
   const integralPart = pointPos === -1 ? numberStr : numberStr.substring(0, pointPos);
   const fractionalPart = pointPos === -1 ? '' : numberStr.substring(pointPos + 1);
 
@@ -277,11 +277,8 @@ function parseNumberData(config: SpellerConfig, numberStr: string): NumberData {
  * @returns Vietnamese spelling of the number
  */
 export function spellVnNumber(config: SpellerConfig, input: InputNumber): string {
-  // Validate input
-  const numberStr = validateNumber(input);
-
   // Parse the number
-  const numberData = parseNumberData(config, numberStr);
+  const numberData = parseNumberData(config, input);
 
   // Spell out each part
   const numbSpelled: string[] = [];
