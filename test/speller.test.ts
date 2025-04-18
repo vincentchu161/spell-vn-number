@@ -6,13 +6,13 @@ describe('Vietnamese Number Speller', () => {
   describe('spell function', () => {
     it('should spell numbers correctly with default config', () => {
       expect(spell('110,000,031,000,001')).toBe(
-        'một trăm mười nghìn tỷ không trăm ba mươi mốt triệu không trăm lẻ một'
+        'Một trăm mười nghìn tỷ không trăm ba mươi mốt triệu không trăm lẻ một'
       );
       expect(spell('1,111,105')).toBe(
-        'một triệu một trăm mười một nghìn một trăm lẻ năm'
+        'Một triệu một trăm mười một nghìn một trăm lẻ năm'
       );
       expect(spell('1,111,115')).toBe(
-        'một triệu một trăm mười một nghìn một trăm mười lăm'
+        'Một triệu một trăm mười một nghìn một trăm mười lăm'
       );
     });
   });
@@ -35,27 +35,27 @@ describe('Vietnamese Number Speller', () => {
 
     it('should handle zero correctly', () => {
       const config = new SpellerConfig();
-      expect(spellVnNumber(config, '0')).toBe('không');
-      expect(spellVnNumber(config, '000')).toBe('không');
-      expect(spellVnNumber(config, '00.00')).toBe('không');
+      expect(spellVnNumber(config, '0')).toBe('Không');
+      expect(spellVnNumber(config, '000')).toBe('Không');
+      expect(spellVnNumber(config, '00.00')).toBe('Không');
     });
 
     it('should handle negative numbers', () => {
       const config = new SpellerConfig();
-      expect(spellVnNumber(config, '-123')).toBe('âm một trăm hai mươi ba');
-      expect(spellVnNumber(config, '-1.23')).toBe('âm một chấm hai mươi ba');
+      expect(spellVnNumber(config, '-123')).toBe('Âm một trăm hai mươi ba');
+      expect(spellVnNumber(config, '-1.23')).toBe('Âm một chấm hai mươi ba');
     });
 
     it('should handle decimal numbers', () => {
       const config = new SpellerConfig();
-      expect(spellVnNumber(config, '123.45')).toBe('một trăm hai mươi ba chấm bốn mươi lăm');
-      expect(spellVnNumber(config, '0.123')).toBe('không chấm một trăm hai mươi ba');
+      expect(spellVnNumber(config, '123.45')).toBe('Một trăm hai mươi ba chấm bốn mươi lăm');
+      expect(spellVnNumber(config, '0.123')).toBe('Không chấm một trăm hai mươi ba');
     });
 
     it('should handle numbers with thousands separators', () => {
       const config = new SpellerConfig();
       expect(spellVnNumber(config, '1,234,567')).toBe(
-        'một triệu hai trăm ba mươi tư nghìn năm trăm sáu mươi bảy'
+        'Một triệu hai trăm ba mươi tư nghìn năm trăm sáu mươi bảy'
       );
     });
 
@@ -63,21 +63,21 @@ describe('Vietnamese Number Speller', () => {
       const config = new SpellerConfig();
 
       // Test for digit 1 in unit position
-      expect(spellVnNumber(config, '21')).toBe('hai mươi mốt');
-      expect(spellVnNumber(config, '11')).toBe('mười một');
+      expect(spellVnNumber(config, '21')).toBe('Hai mươi mốt');
+      expect(spellVnNumber(config, '11')).toBe('Mười một');
 
       // Test for digit 4 in unit position
-      expect(spellVnNumber(config, '24')).toBe('hai mươi tư');
-      expect(spellVnNumber(config, '14')).toBe('mười bốn');
+      expect(spellVnNumber(config, '24')).toBe('Hai mươi tư');
+      expect(spellVnNumber(config, '14')).toBe('Mười bốn');
 
       // Test for digit 5 in unit position
-      expect(spellVnNumber(config, '25')).toBe('hai mươi lăm');
-      expect(spellVnNumber(config, '15')).toBe('mười lăm');
-      expect(spellVnNumber(config, '5')).toBe('năm');
+      expect(spellVnNumber(config, '25')).toBe('Hai mươi lăm');
+      expect(spellVnNumber(config, '15')).toBe('Mười lăm');
+      expect(spellVnNumber(config, '5')).toBe('Năm');
 
       // Test for zeros in different positions
-      expect(spellVnNumber(config, '101')).toBe('một trăm lẻ một');
-      expect(spellVnNumber(config, '1001')).toBe('một nghìn không trăm lẻ một');
+      expect(spellVnNumber(config, '101')).toBe('Một trăm lẻ một');
+      expect(spellVnNumber(config, '1001')).toBe('Một nghìn không trăm lẻ một');
     });
 
     // Test the examples from the original code
@@ -85,55 +85,55 @@ describe('Vietnamese Number Speller', () => {
       const config = new SpellerConfig();
 
       expect(spellVnNumber(config, '110,000,031,000,001')).toBe(
-        'một trăm mười nghìn tỷ không trăm ba mươi mốt triệu không trăm lẻ một'
+        'Một trăm mười nghìn tỷ không trăm ba mươi mốt triệu không trăm lẻ một'
       );
 
       expect(spellVnNumber(config, '20,000,000,000,000,000,000')).toBe(
-        'hai mươi tỷ tỷ'
+        'Hai mươi tỷ tỷ'
       );
 
       expect(spellVnNumber(config, '2,300,000,000,000,000')).toBe(
-        'hai triệu ba trăm nghìn tỷ'
+        'Hai triệu ba trăm nghìn tỷ'
       );
 
       expect(spellVnNumber(config, '2,300,000,111,110,123')).toBe(
-        'hai triệu ba trăm nghìn tỷ một trăm mười một triệu một trăm mười nghìn một trăm hai mươi ba'
+        'Hai triệu ba trăm nghìn tỷ một trăm mười một triệu một trăm mười nghìn một trăm hai mươi ba'
       );
 
       expect(spellVnNumber(config, '2,300,000,111,110,103')).toBe(
-        'hai triệu ba trăm nghìn tỷ một trăm mười một triệu một trăm mười nghìn một trăm lẻ ba'
+        'Hai triệu ba trăm nghìn tỷ một trăm mười một triệu một trăm mười nghìn một trăm lẻ ba'
       );
 
       expect(spellVnNumber(config, '1,111,105')).toBe(
-        'một triệu một trăm mười một nghìn một trăm lẻ năm'
+        'Một triệu một trăm mười một nghìn một trăm lẻ năm'
       );
 
       expect(spellVnNumber(config, '1,111,115')).toBe(
-        'một triệu một trăm mười một nghìn một trăm mười lăm'
+        'Một triệu một trăm mười một nghìn một trăm mười lăm'
       );
 
       expect(spellVnNumber(config, '1,111,104')).toBe(
-        'một triệu một trăm mười một nghìn một trăm lẻ bốn'
+        'Một triệu một trăm mười một nghìn một trăm lẻ bốn'
       );
 
       expect(spellVnNumber(config, '1,111,114')).toBe(
-        'một triệu một trăm mười một nghìn một trăm mười bốn'
+        'Một triệu một trăm mười một nghìn một trăm mười bốn'
       );
 
       expect(spellVnNumber(config, '1,111,134')).toBe(
-        'một triệu một trăm mười một nghìn một trăm ba mươi tư'
+        'Một triệu một trăm mười một nghìn một trăm ba mươi tư'
       );
 
       expect(spellVnNumber(config, '1100000000000')).toBe(
-        'một nghìn một trăm tỷ'
+        'Một nghìn một trăm tỷ'
       );
 
       expect(spellVnNumber(config, '1100000000000000')).toBe(
-        'một triệu một trăm nghìn tỷ'
+        'Một triệu một trăm nghìn tỷ'
       );
 
       expect(spellVnNumber(config, '1100000000000000000.1100000000000000000')).toBe(
-        'một tỷ một trăm triệu tỷ chấm mười một'
+        'Một tỷ một trăm triệu tỷ chấm mười một'
       );
     });
 
@@ -155,14 +155,14 @@ describe('Vietnamese Number Speller', () => {
         },
       });
 
-      expect(spellVnNumber(customConfig, '123.45')).toBe('một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm');
+      expect(spellVnNumber(customConfig, '123.45')).toBe('Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm');
     });
 
-    it('should capitalize the first letter when capitalizeInitial is true', () => {
-      const config = new SpellerConfig({ capitalizeInitial: true });
-      expect(spellVnNumber(config, '123')).toBe('Một trăm hai mươi ba');
-      expect(spellVnNumber(config, '1,234.56')).toBe('Một nghìn hai trăm ba mươi tư chấm năm mươi sáu');
-      expect(spellVnNumber(config, '-1000000')).toBe('Âm một triệu');
+    it('should capitalize the first letter when capitalizeInitial is false', () => {
+      const config = new SpellerConfig({ capitalizeInitial: false });
+      expect(spellVnNumber(config, '123')).toBe('một trăm hai mươi ba');
+      expect(spellVnNumber(config, '1,234.56')).toBe('một nghìn hai trăm ba mươi tư chấm năm mươi sáu');
+      expect(spellVnNumber(config, '-1000000')).toBe('âm một triệu');
     });
   });
 });

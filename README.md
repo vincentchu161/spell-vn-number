@@ -23,13 +23,13 @@ npm install spell-vn-number
 import { spell } from 'spell-vn-number';
 
 console.log(spell('123456')); 
-// "một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
+// "Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
 
 console.log(spell('1,234.56')); 
-// "một nghìn hai trăm ba mươi tư chấm năm mươi sáu"
+// "Một nghìn hai trăm ba mươi tư chấm năm mươi sáu"
 
 console.log(spell('-1000000')); 
-// "âm một triệu"
+// "Âm một triệu"
 ```
 
 ### Browser Usage
@@ -46,7 +46,7 @@ You can use the library directly in the browser via CDN:
 <script>
   // Use the global spellVnNumber object
   console.log(spellVnNumber.spell('123456')); 
-  // "một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
+  // "Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
 </script>
 ```
 
@@ -61,7 +61,7 @@ const customConfig = new SpellerConfig({
   separator: '-',   // Change word separator
   pointText: 'phẩy', // Change decimal point text
   keepOneZeroWhenAllZeros: true, // Keep one zero when all decimal digits are zeros
-  capitalizeInitial: true, // Capitalize the first letter of the spelled number
+  capitalizeInitial: true, // Capitalize the first letter of the spelled number (default: true)
 });
 
 console.log(spellVnNumber(customConfig, '123.45'));
