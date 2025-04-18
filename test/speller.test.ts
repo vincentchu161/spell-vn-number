@@ -161,7 +161,7 @@ describe('Vietnamese Number Speller', () => {
     it('should capitalize the first letter when capitalizeInitial is true', () => {
       const config = new SpellerConfig({ capitalizeInitial: true });
       expect(spellVnNumber(config, '123')).toBe('Một trăm hai mươi ba');
-      expect(spellVnNumber(config, '1,234.56')).toBe('Một nghìn hai trăm ba mươi bốn chấm năm mươi sáu');
+      expect(spellVnNumber(config, '1,234.56')).toBe('Một nghìn hai trăm ba mươi tư chấm năm mươi sáu');
       expect(spellVnNumber(config, '-1000000')).toBe('Âm một triệu');
     });
   });

@@ -26,7 +26,7 @@ console.log(spell('123456'));
 // "một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
 
 console.log(spell('1,234.56')); 
-// "một nghìn hai trăm ba mươi bốn chấm năm mươi sáu"
+// "một nghìn hai trăm ba mươi tư chấm năm mươi sáu"
 
 console.log(spell('-1000000')); 
 // "âm một triệu"
@@ -198,6 +198,7 @@ Configuration class with the following properties:
 - `negativeSign`: Negative sign (default: '-')
 - `pointSign`: Decimal point (default: '.')
 - `thousandSign`: Thousands separator (default: ',')
+- `capitalizeInitial`: Capitalize the first letter of the spelled number (default: false)
 - `keepOneZeroWhenAllZeros`: Controls how to handle redundant zeros (default: false); When the decimal part is all zeros, it will always remain a zero.
   - When `true`: '000.000' -> '0.0' (spelled: không chấm không)
   - When `false`: '000.000' -> '0.' (spelled: không)
