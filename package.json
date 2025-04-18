@@ -1,6 +1,6 @@
 {
   "name": "spell-vn-number",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Vietnamese number speller",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

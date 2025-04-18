@@ -332,19 +332,25 @@ export function spell(input: InputNumber): string {
 /**
  * Convenience function to spell a Vietnamese number with default value on error
  * @param input Number to spell
- * @param subConfig
+ * @param subConfig Partial<SpellerConfig>
  * @param defaultOnError
  * @returns Vietnamese spelling of the number
  */
-export function spellOrDefault(input: InputNumber, subConfig: object, defaultOnError: string): string {
+export function spellOrDefault(input: InputNumber,
+                               subConfig: Partial<SpellerConfig> = {},
+                               defaultOnError?: any): string {
   try {
     const config = new SpellerConfig(subConfig);
     return spellVnNumber(config, input);
   } catch (err) {
+    if (defaultOnError === undefined) {
+      throw err;
+    }
+
     if (err instanceof InvalidFormatError) {
-      console.error('Định dạng input không hợp lệ')
+      console.warn('Định dạng input không hợp lệ')
     } else if (err instanceof InvalidNumberError) {
-      console.error('Số không hợp lệ')
+      console.warn('Số không hợp lệ')
     } else {
       console.error(err)
     }
