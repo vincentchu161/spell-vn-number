@@ -2,12 +2,19 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-  entry: ['core-js/stable', 'regenerator-runtime/runtime', './src/index.ts'],
+  entry: [
+    'core-js/stable',
+    'regenerator-runtime/runtime',
+    './src/index.ts'
+  ],
   output: {
     path: path.resolve(__dirname, 'dist/browser'),
     filename: 'spell-vn-number.min.js',
-    library: 'spellVnNumber',
-    libraryTarget: 'umd',
+    library: {
+      name: 'spellVnNumber',
+      type: 'umd',
+      export: 'default'
+    },
     globalObject: 'this',
     umdNamedDefine: true
   },
@@ -18,7 +25,15 @@ module.exports = {
     rules: [
       {
         test: /\.ts$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            compilerOptions: {
+              target: 'es5',
+              module: 'commonjs'
+            }
+          }
+        },
         exclude: /node_modules/
       }
     ]
