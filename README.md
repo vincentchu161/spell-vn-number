@@ -15,6 +15,36 @@ A JavaScript/TypeScript library for spelling out numbers in Vietnamese. Lightwei
 npm install spell-vn-number
 ```
 
+## Module Types Support
+
+The library supports multiple module formats:
+
+- **ESM (ECMAScript Modules)**: Default import/export syntax
+  ```javascript
+  import { spell } from 'spell-vn-number';
+  ```
+
+- **CommonJS (CJS)**: Node.js require syntax
+  ```javascript
+  const { spell } = require('spell-vn-number');
+  ```
+
+- **UMD (Universal Module Definition)**: Works in both browser and Node.js environments
+  ```html
+  <!-- From unpkg -->
+  <script src="https://unpkg.com/spell-vn-number"></script>
+
+  <!-- From jsDelivr -->
+  <script src="https://cdn.jsdelivr.net/npm/spell-vn-number"></script>
+
+  <script>
+    // Available as global spellVnNumber
+    console.log(spellVnNumber.spell('123'));
+  </script>
+  ```
+
+- **TypeScript**: Full TypeScript support with type definitions included
+
 ## Usage
 
 ### Basic Usage
@@ -57,12 +87,28 @@ You can customize the spelling using the `SpellerConfig` class and the `spellVnN
 ```javascript
 import { spellVnNumber, spellOrDefault, SpellerConfig } from 'spell-vn-number';
 
-// Method: spellVnNumber
+// 1.Method: spellVnNumber
 const customConfig = new SpellerConfig({
-  separator: '-',   // Change word separator
-  pointText: 'phẩy', // Change decimal point text
+  separator: '-',   // Change word separator // default: ' '
+  pointText: 'phẩy', // Change decimal point text // default: chấm
+  negativeText: 'âm', // Change negative text
   keepOneZeroWhenAllZeros: true, // Keep one zero when all decimal digits are zeros
   capitalizeInitial: true, // Capitalize the first letter of the spelled number (default: true)
+  specificText: {
+    oddText: 'lẻ',      // Text for odd numbers
+    tenText: 'mười',    // Text for ten
+    oneToneText: 'mốt', // Special text for digit 1
+    fourToneText: 'tư', // Special text for digit 4
+    fiveToneText: 'lăm' // Special text for digit 5
+  },
+  digitNames: {
+    '4': 'tư',  // Custom name for digit 4 // default: bốn
+    '5': 'lăm'  // Custom name for digit 5 // default: năm
+  },
+  unitNames: {
+    0: 'tỉ',    // Custom name for billion // default: tỷ
+    2: 'ngàn'   // Custom name for thousand // default: nghìn
+  }
 });
 
 console.log(spellVnNumber(customConfig, '123.45'));
@@ -72,7 +118,7 @@ console.log(spellVnNumber(customConfig, '123.4500'));
 console.log(spellVnNumber(customConfig, '123.000'));
 // "Một-trăm-hai-mươi-ba-phẩy-không"
 
-// Method: spellOrDefault
+// 2.Method: spellOrDefault
 const input = '123456';
 const config = { separator: ' ', pointText: 'phẩy' };
 const defaultText = 'Invalid number';
@@ -82,7 +128,76 @@ console.log(spellOrDefault(input, config, defaultText));
 
 console.log(spellOrDefault('abc', config, defaultText));
 // Output: "Invalid number"
+
+// 3.Advanced Configuration Examples
+const yourConfig1 = new SpellerConfig({separator: ' '});
+const yourConfig2 = new SpellerConfig({separator: '-', pointText: 'phẩy', currencyUnit: 'đồng'});
+
+/**
+ * Convenience function to spell a Vietnamese number with default value on error
+ * @param input Number to spell
+ * @param config Partial<SpellerConfig> to override default configuration
+ * @returns Vietnamese spelling of the number or defaultOnError if an error occurs
+ * @throws InvalidFormatError when input format is invalid (empty, null, undefined, a finite number, ...)
+ * @throws InvalidNumberError when number is invalid
+ * @throws Error for other unexpected errors
+ */
+export function spellNumber(input: InputNumber, config: SpellerConfig): string {
+  try {
+    return spellVnNumber(config, input);
+  } catch (err) {
+    // your handle error...
+    if (err instanceof InvalidFormatError) {
+      console.warn(err.name, err.message, '(', input, typeof input, ')');
+      return ''; // return empty!
+    } else if (err instanceof InvalidNumberError) {
+      console.warn('Số không hợp lệ:', input, '(', typeof input, ')');
+    } else {
+      console.error('Unexpected error with input:', input, '(', typeof input, '):', err);
+    }
+
+    return typeof input === "string" ? input : String(input);
+  }
+}
+
+// call/use...
+spellNumber(1234, yourConfig1); // Một nghìn hai trăm ba mươi tư
+spellNumber(1234.89, yourConfig2) // Một-nghìn-hai-trăm-ba-mươi-tư-phẩy-tám-mươi-chín đồng
+
 ```
+
+### Custom Number Parsing
+
+You can customize how numbers are parsed by extending the `SpellerConfig` class and overriding the `parseNumberData` method:
+
+```javascript
+import { SpellerConfig, spellVnNumber } from 'spell-vn-number';
+
+class CustomSpellerConfig extends SpellerConfig {
+  parseNumberData(input: InputNumber): NumberData {
+    // Your custom parsing logic here
+    // For example, handle special number formats or add custom validation
+    
+    // Default implementation
+    return super.parseNumberData(input);
+  }
+}
+
+// Usage
+const customConfig = new CustomSpellerConfig();
+console.log(spellVnNumber(customConfig, '123.45'));
+// Uses your custom parsing logic
+```
+
+The default `parseNumberData` implementation:
+1. Cleans and validates the input number
+2. Handles negative signs
+3. Splits the number into integral and fractional parts
+4. Trims redundant zeros
+5. Returns a `NumberData` object with:
+   - `isNegative`: boolean indicating if the number is negative
+   - `integralPart`: string containing the integral part
+   - `fractionalPart`: string containing the fractional part
 
 ### Currency Unit
 
@@ -165,26 +280,29 @@ normalizeNumberString('1 234,56', {
 
 ```
 
-#### handleRedundantZeros
+#### trimRedundantZeros
 
 Handles redundant zeros in number strings based on configuration:
 
 ```javascript
-import { handleRedundantZeros, SpellerConfig } from 'spell-vn-number';
+import { trimRedundantZeros, SpellerConfig } from 'spell-vn-number';
 
 // Default config (keepOneZeroWhenAllZeros: false)
 const defaultConfig = new SpellerConfig();
-console.log(handleRedundantZeros(defaultConfig, '00123')); // "123"
-console.log(handleRedundantZeros(defaultConfig, '123.4560')); // "123.456"
-console.log(handleRedundantZeros(defaultConfig, '000.000')); // "0." - all decimal zeros removed
 
+console.log(trimRedundantZeros(defaultConfig, '00123')); // "123"
+console.log(trimRedundantZeros(defaultConfig, '123.4560')); // "123.456"
+console.log(trimRedundantZeros(defaultConfig, '000.000')); // "0." - all decimal zeros removed
+
+// With custom configuration
+const customConfig = new SpellerConfig({
+  keepOneZeroWhenAllZeros: true
+});
+
+console.log(trimRedundantZeros(customConfig, '123.4560')); // "123.456"
 // With keepOneZeroWhenAllZeros: true
-const customConfig = new SpellerConfig({ keepOneZeroWhenAllZeros: true });
-// Still trims trailing zeros for non-zero decimal parts
-console.log(handleRedundantZeros(customConfig, '123.4560')); // "123.456" 
-// Keeps one zero when all decimal digits are zeros
-console.log(handleRedundantZeros(customConfig, '000.000')); // "0.0" - one zero kept after decimal
-console.log(handleRedundantZeros(customConfig, '123.0000')); // "123.0" - one zero kept
+console.log(trimRedundantZeros(customConfig, '000.000')); // "0.0" - one zero kept after decimal
+console.log(trimRedundantZeros(customConfig, '123.0000')); // "123.0" - one zero kept
 ```
 
 ## Features
@@ -226,7 +344,7 @@ Configuration class with the following properties:
 - `pointSign`: Decimal point (default: '.')
 - `thousandSign`: Thousands separator (default: ',')
 - `capitalizeInitial`: Capitalize the first letter of the spelled number (default: false)
-- `keepOneZeroWhenAllZeros`: Controls how to handle redundant zeros (default: false); When the decimal part is all zeros, it will always remain a zero.
+- `keepOneZeroWhenAllZeros`: Controls how to handle redundant zeros (default: false); When the fractional part is all zeros, it will always remain a zero.
   - When `true`: '000.000' -> '0.0' (spelled: không chấm không)
   - When `false`: '000.000' -> '0.' (spelled: không)
 - `negativeText`: Text for negative numbers (default: 'âm')
@@ -239,11 +357,11 @@ Configuration class with the following properties:
 
 The library also exports several utility functions:
 
-- `handleRedundantZeros(config, numberStr)`: Intelligently formats numbers by:
+- `trimRedundantZeros(config, numberStr)`: Intelligently formats numbers by:
   - Removing excess leading zeros from integral part (always keeping at least one '0')
-  - Handling decimal part according to configuration:
-    - When `keepOneZeroWhenAllZeros` is false (default): removes all trailing zeros from the decimal part and keeps just the decimal point if all decimal digits are zeros
-    - When `keepOneZeroWhenAllZeros` is true: removes all trailing zeros from the decimal part, but keeps a single '0' after the decimal point when all decimal digits are zeros
+  - Handling fractional part according to configuration:
+    - When `keepOneZeroWhenAllZeros` is false (default): removes all trailing zeros from the fractional part and keeps just the decimal point if all decimal digits are zeros
+    - When `keepOneZeroWhenAllZeros` is true: removes all trailing zeros from the fractional part, but keeps a single '0' after the decimal point when all decimal digits are zeros
   - Examples:
     - '00123' → '123' (with any config)
     - '00.00100' → '0.001' (with any config, non-zero decimal digits always have trailing zeros removed)
@@ -276,7 +394,7 @@ The library also exports several utility functions:
 
 The library throws different types of errors:
 
-- `InvalidFormatError`: When the input number format is invalid
+- `InvalidFormatError`: When the input number format is invalid (empty, null, undefined, a finite number, ...)
 - `InvalidNumberError`: When the number contains invalid characters
 
 ## Author

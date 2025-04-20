@@ -1,6 +1,6 @@
 {
   "name": "spell-vn-number",
-  "version": "1.0.8",
+  "version": "2.0.0",
   "description": "Vietnamese number speller",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -20,7 +20,12 @@
     "build:browser": "webpack --mode production",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "clean": "rimraf dist coverage"
+    "clean": "rimraf dist coverage",
+    "prepublishOnly": "npm run test && npm run build",
+    "prepare": "npm run build",
+    "preversion": "npm run test",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "homepage": "https://npm-spell-vn-number.vincentchu.work/",
   "repository": {
@@ -57,7 +62,9 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.1",
+    "core-js": "^3.41.0",
     "jest": "^29.5.0",
+    "regenerator-runtime": "^0.14.1",
     "rimraf": "^5.0.0",
     "terser-webpack-plugin": "^5.3.14",
     "ts-jest": "^29.1.0",

@@ -1,80 +1,80 @@
 import { describe, expect, it } from '@jest/globals';
 import { SpellerConfig } from '../src';
 import {
-  handleRedundantZeros,
   cleanInputNumber,
+  trimRedundantZeros,
   normalizeNumberString,
   trimLeft,
   trimRight
 } from "../src/utils";
 
 describe('Utility Functions', () => {
-  // Test handleRedundantZeros function
-  describe('handleRedundantZeros function', () => {
+  // Test trimRedundantZeros function
+  describe('trimRedundantZeros function', () => {
     it('should trim redundant zeros correctly with default settings', () => {
-      const config = new SpellerConfig({ decimalPoint: '.', filledDigit: '0' });
+      const config = new SpellerConfig({ decimalPoint: '.', redundantZeroChar: '0' });
 
       // Test integral part only
-      expect(handleRedundantZeros(config, '0')).toBe('0');
-      expect(handleRedundantZeros(config, '00123')).toBe('123');
-      expect(handleRedundantZeros(config, '00010')).toBe('10');
-      expect(handleRedundantZeros(config, '01')).toBe('1');
-      expect(handleRedundantZeros(config, '001')).toBe('1');
+      expect(trimRedundantZeros(config, '0')).toBe('0');
+      expect(trimRedundantZeros(config, '00123')).toBe('123');
+      expect(trimRedundantZeros(config, '00010')).toBe('10');
+      expect(trimRedundantZeros(config, '01')).toBe('1');
+      expect(trimRedundantZeros(config, '001')).toBe('1');
 
-      // Test decimal part
-      expect(handleRedundantZeros(config, '123.456')).toBe('123.456');
-      expect(handleRedundantZeros(config, '123.4560')).toBe('123.456');
-      expect(handleRedundantZeros(config, '00123.4560')).toBe('123.456');
-      expect(handleRedundantZeros(config, '0.0')).toBe('0.');
-      expect(handleRedundantZeros(config, '000.000')).toBe('0.');
-      expect(handleRedundantZeros(config, '00.00100')).toBe('0.001');
+      // Test fractional part
+      expect(trimRedundantZeros(config, '123.456')).toBe('123.456');
+      expect(trimRedundantZeros(config, '123.4560')).toBe('123.456');
+      expect(trimRedundantZeros(config, '00123.4560')).toBe('123.456');
+      expect(trimRedundantZeros(config, '0.0')).toBe('0.');
+      expect(trimRedundantZeros(config, '000.000')).toBe('0.');
+      expect(trimRedundantZeros(config, '00.00100')).toBe('0.001');
     });
 
     it('should respect keepOneZeroWhenAllZeros flag', () => {
       const config = new SpellerConfig({
         decimalPoint: '.',
-        filledDigit: '0',
+        redundantZeroChar: '0',
         keepOneZeroWhenAllZeros: true // Keep one zero after decimal point when all decimal digits are zero
       });
 
-      // Test non-zero decimal part - should trim trailing zeros
-      expect(handleRedundantZeros(config, '123.4560')).toBe('123.456');
-      expect(handleRedundantZeros(config, '00.00100')).toBe('0.001');
+      // Test non-zero fractional part - should trim trailing zeros
+      expect(trimRedundantZeros(config, '123.4560')).toBe('123.456');
+      expect(trimRedundantZeros(config, '00.00100')).toBe('0.001');
 
-      // Test all-zero decimal part - should keep one zero
-      expect(handleRedundantZeros(config, '0.0')).toBe('0.0');
-      expect(handleRedundantZeros(config, '000.000')).toBe('0.0');
-      expect(handleRedundantZeros(config, '123.0000')).toBe('123.0');
+      // Test all-zero fractional part - should keep one zero
+      expect(trimRedundantZeros(config, '0.0')).toBe('0.0');
+      expect(trimRedundantZeros(config, '000.000')).toBe('0.0');
+      expect(trimRedundantZeros(config, '123.0000')).toBe('123.0');
     });
 
     it('should always keep at least one digit for integral part', () => {
-      const config = new SpellerConfig({ decimalPoint: '.', filledDigit: '0' });
+      const config = new SpellerConfig({ decimalPoint: '.', redundantZeroChar: '0' });
 
-      expect(handleRedundantZeros(config, '00')).toBe('0');
-      expect(handleRedundantZeros(config, '00.123')).toBe('0.123');
-      expect(handleRedundantZeros(config, '000.001')).toBe('0.001');
+      expect(trimRedundantZeros(config, '00')).toBe('0');
+      expect(trimRedundantZeros(config, '00.123')).toBe('0.123');
+      expect(trimRedundantZeros(config, '000.001')).toBe('0.001');
     });
 
     it('should handle custom keepOneZeroWhenAllZeros settings', () => {
       const config1 = new SpellerConfig({
         decimalPoint: '.',
-        filledDigit: '0',
+        redundantZeroChar: '0',
         keepOneZeroWhenAllZeros: true
       });
 
-      expect(handleRedundantZeros(config1, '00.00100')).toBe('0.001');
-      expect(handleRedundantZeros(config1, '000.000')).toBe('0.0');
-      expect(handleRedundantZeros(config1, '123.0000')).toBe('123.0');
+      expect(trimRedundantZeros(config1, '00.00100')).toBe('0.001');
+      expect(trimRedundantZeros(config1, '000.000')).toBe('0.0');
+      expect(trimRedundantZeros(config1, '123.0000')).toBe('123.0');
 
       const config2 = new SpellerConfig({
         decimalPoint: '.',
-        filledDigit: '0',
+        redundantZeroChar: '0',
         keepOneZeroWhenAllZeros: false
       });
 
-      expect(handleRedundantZeros(config2, '00.00100')).toBe('0.001');
-      expect(handleRedundantZeros(config2, '000.000')).toBe('0.');
-      expect(handleRedundantZeros(config2, '123.0000')).toBe('123.');
+      expect(trimRedundantZeros(config2, '00.00100')).toBe('0.001');
+      expect(trimRedundantZeros(config2, '000.000')).toBe('0.');
+      expect(trimRedundantZeros(config2, '123.0000')).toBe('123.');
     });
   });
 
@@ -180,7 +180,7 @@ describe('Utility Functions', () => {
       expect(trimLeft('00123')).toBe('123');
       expect(trimLeft('00123', '0')).toBe('123');
       expect(trimLeft('xxyzz', 'x')).toBe('yzz');
-      expect(trimLeft('0000', '0')).toBe('');
+      expect(trimLeft('0000', '0')).toBe('0');
       expect(trimLeft('123', '0')).toBe('123'); // No leading zeros
     });
   });

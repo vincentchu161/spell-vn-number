@@ -1,273 +1,207 @@
-import {InputNumber, InvalidFormatError, InvalidNumberError, NumberData, SpellerConfig} from './types';
-import {cleanInputNumber, handleRedundantZeros} from './utils';
+import {
+  Index,
+  InputNumber,
+  InvalidFormatError,
+  InvalidNumberError,
+  NUMBER_OF_GROUPS,
+  NUMBER_OF_POSITIONS,
+  NumberData,
+  SpellerConfig
+} from './types';
 
 /**
  * Process a section of the number by splitting it into groups and spelling each group
+ * @param spelledParts
  * @param config SpellerConfig instance
  * @param numberStr The number string to process
  * @returns Array of spelled parts
  */
-function processPart(config: SpellerConfig, numberStr: string): string[] {
+function processPart(spelledParts: string[], config: SpellerConfig, numberStr: string): string[] {
   if (numberStr === '') {
     return [];
   }
 
-  const mod = numberStr.length % config.UNIT_EACH_GROUP.length;
-  // Add zeros to the beginning if length is not divisible by UNIT_EACH_GROUP.length
+  const mod = numberStr.length % NUMBER_OF_POSITIONS;
+  // Add zeros to the beginning if length is not divisible by NUMBER_OF_POSITIONS
   let paddedNumber = numberStr;
   if (mod !== 0) {
-    const offset = config.UNIT_EACH_GROUP.length - mod;
-    paddedNumber = '0'.repeat(offset) + numberStr;
+    paddedNumber = '0'.repeat(NUMBER_OF_POSITIONS - mod) + numberStr;
   }
 
   const arrNum = paddedNumber.split('');
-  const numbSpelled: string[] = [];
-  const totalDigitGroup = arrNum.length / config.UNIT_EACH_GROUP.length; // Not odd because already padded
+  const totalThreeDigitSegments = arrNum.length / NUMBER_OF_POSITIONS; // Not odd because already padded
 
-  const periodGroupSize = config.UNIT_GROUP.length;
-  const periodGroupMod = totalDigitGroup % periodGroupSize;
-  const totalPeriodGroup = periodGroupMod === 0
-    ? totalDigitGroup / periodGroupSize
-    : Math.floor(totalDigitGroup / periodGroupSize) + 1;
+  const magnitudeMod = totalThreeDigitSegments % NUMBER_OF_GROUPS;
+  let remainingGroups = magnitudeMod === 0
+      ? totalThreeDigitSegments / NUMBER_OF_GROUPS
+      : Math.floor(totalThreeDigitSegments / NUMBER_OF_GROUPS) + 1;
 
-  let groupEachPeriodIndex = periodGroupMod === 0 ? periodGroupMod : periodGroupSize - periodGroupMod;
+  let currentMagnitudeIndex = magnitudeMod !== 0 ? NUMBER_OF_GROUPS - magnitudeMod : Index.BILLION;
 
   let isFirst = true;
   let i = 0;
-  let remainingGroups = totalPeriodGroup;
 
   while (remainingGroups > 0) {
-    // THOUSAND/MILLION/BILLION (Unit of UNIT_GROUP)
+    // THOUSAND/MILLION/BILLION (Unit of magnitude groups)
     if (!isFirst) {
       // Add unit for the group
-      const unit = config.UNIT_OF_GROUP[config.UNIT_GROUP[groupEachPeriodIndex]];
-      numbSpelled.push(unit);
+      spelledParts.push(config.getUnitName(currentMagnitudeIndex));
     }
 
-    for (; groupEachPeriodIndex < config.UNIT_GROUP.length; groupEachPeriodIndex++) {
+    // Group indices (chỉ số nhóm)
+    for (; currentMagnitudeIndex <= Index.THOUSAND; currentMagnitudeIndex++) {
       // Process three digits at a time
-      const arrNumb = [arrNum[i], arrNum[i+1], arrNum[i+2]];
+      const hundredsDigit = arrNum[i];
+      const tensDigit = arrNum[i + 1];
+      const unitsDigit = arrNum[i + 2];
       i += 3;
 
       if (isFirst) {
-        isFirst = false;
-        const firstSpelled = firstSpellThreeDigit(config, arrNumb, groupEachPeriodIndex);
-        for (let j = 0; j < firstSpelled.length; j++) {
-          numbSpelled.push(firstSpelled[j]);
+        // Process hundreds
+        if (hundredsDigit !== '0') {
+          isFirst = false;
+          spellHundreds(spelledParts, config, hundredsDigit, tensDigit, unitsDigit);
+        }
+        // Process tens
+        if (!isFirst || tensDigit !== '0') {
+          isFirst = false;
+          spellTens(spelledParts, config, tensDigit, unitsDigit);
+        }
+        // Process units
+        if (!isFirst || unitsDigit !== '0') {
+          isFirst = false;
+          spellUnits(spelledParts, config, hundredsDigit, tensDigit, unitsDigit, currentMagnitudeIndex);
+        }
+        // If all digits are zero, return "không"
+        if (isFirst) {
+          isFirst = false;
+          spelledParts.push(config.getDigit('0'));
         }
       } else {
-        const spelled = spellThreeDigit(config, arrNumb, groupEachPeriodIndex);
-        for (let j = 0; j < spelled.length; j++) {
-          numbSpelled.push(spelled[j]);
-        }
+        // Process hundreds
+        spellHundreds(spelledParts, config, hundredsDigit, tensDigit, unitsDigit);
+        // Process tens
+        spellTens(spelledParts, config, tensDigit, unitsDigit);
+        // Process units
+        spellUnits(spelledParts, config, hundredsDigit, tensDigit, unitsDigit, currentMagnitudeIndex);
       }
     }
 
     remainingGroups--;
-    groupEachPeriodIndex = 0;
+    currentMagnitudeIndex = Index.BILLION;
   }
 
-  return numbSpelled;
+  return spelledParts;
 }
 
 /**
- * Spell the first three digits of a number
+ * Spell a digit and its unit based on its position and context
+ * @param spelledParts
  * @param config SpellerConfig instance
- * @param arrNumb Array of three digit characters
- * @param groupEachPeriodIndex Index of the unit group
+ * @param hundredsDigit Digit at hundreds position
+ * @param tensDigit Digit at tens position
+ * @param unitsDigit Digit at units position
+ * @param currentMagnitudeIndex Index of the magnitude type (thousand, million, billion)
  * @returns Array of spelled parts
  */
-function firstSpellThreeDigit(config: SpellerConfig, arrNumb: string[], groupEachPeriodIndex: number): string[] {
-  const spelled: string[] = [];
-
-  let isFirst = true;
-  for (let atIndex = 0; atIndex < arrNumb.length; atIndex++) {
-    if (isFirst && arrNumb[atIndex] !== '0') {
-      isFirst = false;
-    }
-
-    if (!isFirst) {
-      const specialSpelled = spellSpecialDigit(config, arrNumb, atIndex, groupEachPeriodIndex);
-      for (let j = 0; j < specialSpelled.length; j++) {
-        spelled.push(specialSpelled[j]);
-      }
-    }
-  }
-
-  // If all digits are zero, return "không"
-  if (spelled.length === 0) {
-    spelled.push(config.digits['0']);
-  }
-
-  return spelled;
-}
-
-/**
- * Spell three digits of a number
- * @param config SpellerConfig instance
- * @param arrNumb Array of three digit characters
- * @param groupEachPeriodIndex Index of the unit group
- * @returns Array of spelled parts
- */
-function spellThreeDigit(config: SpellerConfig, arrNumb: string[], groupEachPeriodIndex: number): string[] {
-  const spelled: string[] = [];
-
-  for (let atIndex = 0; atIndex < arrNumb.length; atIndex++) {
-    const specialSpelled = spellSpecialDigit(config, arrNumb, atIndex, groupEachPeriodIndex);
-    for (let j = 0; j < specialSpelled.length; j++) {
-      spelled.push(specialSpelled[j]);
-    }
-  }
-
-  return spelled;
-}
-
-/**
- * Spell a special digit based on its position and context
- * @param config SpellerConfig instance
- * @param arrNumb Array of three digit characters
- * @param atIndex Index within the three-digit group
- * @param groupEachPeriodIndex Index of the unit group
- * @returns Array of spelled parts
- */
-function spellSpecialDigit(
+function spellUnits(
+  spelledParts: string[],
   config: SpellerConfig,
-  arrNumb: string[],
-  atIndex: number,
-  groupEachPeriodIndex: number
-): string[] {
-  const currentNumb = arrNumb[atIndex];
-  const parts: string[] = [];
-
-  // 1.SPELL currentNumb
-  switch (currentNumb) {
-    case '0':
-      if (atIndex === config.AT_UNIT) {
-        // UNIT position
-        // Empty for both cases
-      } else if (atIndex === config.AT_TEN) {
-        // TENS position
-        if (arrNumb[atIndex + 1] !== '0') {
-          parts.push(config.oddText);
-        }
-      } else {
-        // HUNDREDS position
-        if (arrNumb[atIndex + 1] === '0' && arrNumb[atIndex + 2] === '0') {
-          // Empty
-        } else {
-          parts.push(config.digits[currentNumb]);
-        }
-      }
-      break;
-
-    case '1':
-      if (atIndex === config.AT_UNIT) {
-        // UNIT position
-        const previousNumb = arrNumb[atIndex - 1];
-        if (previousNumb !== '0' && previousNumb !== '1') {
-          parts.push(config.oneToneText);
-        } else {
-          parts.push(config.digits[currentNumb]);
-        }
-      } else if (atIndex === config.AT_TEN) {
-        // TENS position
-        parts.push(config.tenText);
-      } else {
-        // HUNDREDS position
-        parts.push(config.digits[currentNumb]);
-      }
-      break;
-
-    case '4':
-      if (atIndex === config.AT_UNIT) {
-        // UNIT position
-        if (arrNumb[atIndex - 1] !== '0' && arrNumb[atIndex - 1] !== '1') {
-          parts.push(config.fourToneText);
-        } else {
-          parts.push(config.digits[currentNumb]);
-        }
-      } else {
-        // TENS or HUNDREDS position
-        parts.push(config.digits[currentNumb]);
-      }
-      break;
-
-    case '5':
-      if (atIndex === config.AT_UNIT) {
-        // UNIT position
-        if (arrNumb[atIndex - 1] !== '0') {
-          parts.push(config.fiveToneText);
-        } else {
-          parts.push(config.digits[currentNumb]);
-        }
-      } else {
-        // TENS or HUNDREDS position
-        parts.push(config.digits[currentNumb]);
-      }
-      break;
-
-    default:
-      // For all other digits
-      parts.push(config.digits[currentNumb]);
-      break;
-  }
-
-  // 2.ADD UNIT FOR DIGIT
-  const groupName = config.UNIT_GROUP[groupEachPeriodIndex];
-  if (parts.length > 0) {
-    // parts is not empty
-    if (
-      !(currentNumb === '1' && atIndex === config.AT_TEN) &&
-      !(parts[0] === config.oddText && atIndex === config.AT_TEN)
-    ) {
-      // Number 1 is not read as "mười mươi" && number 0 is not read as "lẻ mươi"
-      const unit = config.UNIT_GROUP_MAPPER[groupName][atIndex];
-      if (unit !== '') {
-        parts.push(unit);
+  hundredsDigit: string,
+  tensDigit: string,
+  unitsDigit: string,
+  currentMagnitudeIndex: number
+): void {
+  if (unitsDigit === '0') {
+    if ((tensDigit !== '0' || hundredsDigit !== '0')) {
+      // Unit digit is zero, but hundreds or tens are not both zero ⇒ still need to read the unit for correct group reading.
+      if (currentMagnitudeIndex !== Index.THOUSAND) {
+        spelledParts.push(config.getUnitNameOfMagnitude(currentMagnitudeIndex));
       }
     }
-  } else if (
-    atIndex === config.AT_UNIT &&
-    currentNumb === '0' &&
-    (arrNumb[atIndex - 1] !== '0' || arrNumb[atIndex - 2] !== '0')
-  ) {
-    // Zero in unit position -> this reads the unit for the whole group (3 digits -> UNIT_EACH_GROUP.length).
-    // (hundred & tens are not both zero)
-    const unit = config.UNIT_GROUP_MAPPER[groupName][atIndex];
-    if (unit !== '') {
-      parts.push(unit);
-    }
+    return; // return...
   }
-  return parts;
+
+  if (unitsDigit === '1') {
+    if (tensDigit !== '0' && tensDigit !== '1') {
+      spelledParts.push(config.oneToneText);
+    } else {
+      spelledParts.push(config.getDigit(unitsDigit));
+    }
+  } else if (unitsDigit === '4') {
+    if (tensDigit !== '0' && tensDigit !== '1') {
+      spelledParts.push(config.fourToneText);
+    } else {
+      spelledParts.push(config.getDigit(unitsDigit));
+    }
+  } else if (unitsDigit === '5') {
+    if (tensDigit !== '0') {
+      spelledParts.push(config.fiveToneText);
+    } else {
+      spelledParts.push(config.getDigit(unitsDigit));
+    }
+  } else {
+    spelledParts.push(config.getDigit(unitsDigit));
+  }
+
+  // 2. Add unit if needed (spelled is not empty)
+  if (currentMagnitudeIndex !== Index.THOUSAND) {
+    spelledParts.push(config.getUnitNameOfMagnitude(currentMagnitudeIndex));
+  }
 }
 
 /**
- * Parse a number string into structured number data
+ * Spell a digit and its unit based on its position and context
+ * @param spelledParts
  * @param config SpellerConfig instance
- * @param input InputNumber
- * @returns Structured number data
+ * @param tensDigit Digit at tens position
+ * @param unitsDigit Digit at units position
+ * @returns Array of spelled parts
  */
-function parseNumberData(config: SpellerConfig, input: InputNumber): NumberData {
-  // Clean and validate input
-  let numberStr = cleanInputNumber(input, config);
+function spellTens(
+  spelledParts: string[],
+  config: SpellerConfig,
+  tensDigit: string,
+  unitsDigit: string
+): void {
 
-  // Handle negative sign
-  const isNegative = numberStr.startsWith(config.negativeSign);
-  numberStr = isNegative ? numberStr.substring(config.negativeSign.length) : numberStr;
+  if (tensDigit === '0') {
+    if (unitsDigit !== '0') {
+      spelledParts.push(config.oddText);
+    }
+  } else if (tensDigit === '1') {
+    spelledParts.push(config.tenText);
+  } else {
+    spelledParts.push(config.getDigit(tensDigit));
+    spelledParts.push(config.getUnitName(Index.TENS));
+  }
+}
 
-  // Trim redundant zeros
-  numberStr = handleRedundantZeros(config, numberStr);
-
-  // Split into integral and fractional parts
-  const pointPos = numberStr.indexOf(config.decimalPoint);
-  const integralPart = pointPos === -1 ? numberStr : numberStr.substring(0, pointPos);
-  const fractionalPart = pointPos === -1 ? '' : numberStr.substring(pointPos + 1);
-
-  return {
-    isNegative,
-    integralPart,
-    fractionalPart,
-  };
+/**
+ * Spell a digit and its unit based on its position and context
+ * @param spelledParts
+ * @param config SpellerConfig instance
+ * @param hundredsDigit Digit at hundreds position
+ * @param tensDigit Digit at tens position
+ * @param unitsDigit Digit at units position
+ * @returns Array of spelled parts
+ */
+function spellHundreds(
+  spelledParts: string[],
+  config: SpellerConfig,
+  hundredsDigit: string,
+  tensDigit: string,
+  unitsDigit: string
+): void {
+  if (hundredsDigit === '0') {
+    if (!(tensDigit === '0' && unitsDigit === '0')) {
+      spelledParts.push(config.getDigit(hundredsDigit));
+      spelledParts.push(config.getUnitName(Index.HUNDREDS));
+    }
+  } else {
+    spelledParts.push(config.getDigit(hundredsDigit));
+    spelledParts.push(config.getUnitName(Index.HUNDREDS));
+  }
 }
 
 /**
@@ -277,39 +211,34 @@ function parseNumberData(config: SpellerConfig, input: InputNumber): NumberData 
  * @returns Vietnamese spelling of the number
  */
 export function spellVnNumber(config: SpellerConfig, input: InputNumber): string {
-  // Parse the number
-  const numberData = parseNumberData(config, input);
+  // Parse the number using the configurable parser
+  const numberData = config.parseNumberData(input);
 
   // Spell out each part
-  const numbSpelled: string[] = [];
+  const spelledParts: string[] = [];
 
   // Add negative sign if needed
   if (numberData.isNegative) {
-    numbSpelled.push(config.negativeText);
+    spelledParts.push(config.negativeText);
   }
 
   // Process integral part
-  const integralSpelling = processPart(config, numberData.integralPart);
-  for (let i = 0; i < integralSpelling.length; i++) {
-    numbSpelled.push(integralSpelling[i]);
-  }
+  processPart(spelledParts, config, numberData.integralPart);
 
   // Process fractional part if exists
   if (numberData.fractionalPart.length > 0) {
-    numbSpelled.push(config.pointText);
-    const fractionalSpelling = processPart(config, numberData.fractionalPart);
-    for (let i = 0; i < fractionalSpelling.length; i++) {
-      numbSpelled.push(fractionalSpelling[i]);
-    }
+    spelledParts.push(config.pointText);
+    processPart(spelledParts, config, numberData.fractionalPart);
   }
-
-  // Join all parts with the separator
-  let result = numbSpelled.join(config.separator);
 
   // Capitalize the first letter if capitalizeInitial is true
   if (config.capitalizeInitial) {
-    result = result.charAt(0).toUpperCase() + result.slice(1);
+    const firstNumb = spelledParts[0];
+    spelledParts[0] = firstNumb.charAt(0).toUpperCase() + firstNumb.slice(1);
   }
+
+  // Join all parts with the separator
+  let result = spelledParts.join(config.separator);
 
   // After joining all parts, append the currency unit if provided
   if (config.currencyUnit) {
@@ -332,15 +261,20 @@ export function spell(input: InputNumber): string {
 /**
  * Convenience function to spell a Vietnamese number with default value on error
  * @param input Number to spell
- * @param subConfig Partial<SpellerConfig>
- * @param defaultOnError
- * @returns Vietnamese spelling of the number
+ * @param subConfig Partial<SpellerConfig> to override default configuration
+ * @param defaultOnError Default value to return when an error occurs. If undefined, the error will be thrown.
+ * @returns Vietnamese spelling of the number or defaultOnError if an error occurs
+ * @throws InvalidFormatError when input format is invalid
+ * @throws InvalidNumberError when number is invalid
+ * @throws Error for other unexpected errors
  */
-export function spellOrDefault(input: InputNumber,
-                               subConfig: Partial<SpellerConfig> = {},
-                               defaultOnError?: any): string {
+export function spellOrDefault(
+  input: InputNumber,
+  subConfig: Partial<SpellerConfig> = {},
+  defaultOnError?: string
+): string {
+  const config = new SpellerConfig(subConfig);
   try {
-    const config = new SpellerConfig(subConfig);
     return spellVnNumber(config, input);
   } catch (err) {
     if (defaultOnError === undefined) {
@@ -348,11 +282,11 @@ export function spellOrDefault(input: InputNumber,
     }
 
     if (err instanceof InvalidFormatError) {
-      console.warn('Định dạng input không hợp lệ')
+      console.warn(err.name, err.message, '(', input, typeof input, ')');
     } else if (err instanceof InvalidNumberError) {
-      console.warn('Số không hợp lệ')
+      console.warn(err.name, err.message, '(', input, typeof input, ')');
     } else {
-      console.error(err)
+      console.error('Unexpected error with input', '(', input, typeof input, '):', err);
     }
 
     return defaultOnError;

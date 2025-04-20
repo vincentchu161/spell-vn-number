@@ -15,6 +15,26 @@ describe('Vietnamese Number Speller', () => {
         'Một triệu một trăm mười một nghìn một trăm mười lăm'
       );
     });
+
+    it('should handle invalid format', () => {
+      expect(() => spell('abc')).toThrow('Invalid number format');
+    });
+
+    it('should handle large numbers', () => {
+      expect(spell('1000000')).toBe('Một triệu');
+    });
+
+    it('should handle zero', () => {
+      expect(spell('0')).toBe('Không');
+    });
+
+    it('should handle negative numbers', () => {
+      expect(spell('-123')).toBe('Âm một trăm hai mươi ba');
+    });
+
+    it('should handle decimal numbers', () => {
+      expect(spell('123.45')).toBe('Một trăm hai mươi ba chấm bốn mươi lăm');
+    });
   });
 
   // Test main function with custom config
@@ -141,21 +161,27 @@ describe('Vietnamese Number Speller', () => {
       const customConfig = new SpellerConfig({
         separator: '-',
         pointText: 'phẩy',
-        digits: {
-          0: 'không',
-          1: 'một',
-          2: 'hai',
-          3: 'ba',
-          4: 'bốn',
-          5: 'năm',
-          6: 'sáu',
-          7: 'bảy',
-          8: 'tám',
-          9: 'chín',
+        digitNames: {
+          '0': 'không',
+          '1': 'một',
+          '2': 'hai',
+          '3': 'ba',
+          '4': 'tư',      // Changed from 'bốn'
+          '5': 'lăm',     // Changed from 'năm'
+          '6': 'sáu',
+          '7': 'bảy',
+          '8': 'tám',
+          '9': 'chín'
         },
+        unitNames: {
+          0: 'tỉ',    // magnitude unit: billion
+          2: 'ngàn',  // magnitude unit: thousand
+        }
       });
 
-      expect(spellVnNumber(customConfig, '123.45')).toBe('Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm');
+      expect(spellVnNumber(customConfig, '123.45')).toBe('Một-trăm-hai-mươi-ba-phẩy-tư-mươi-lăm');
+      expect(spellVnNumber(customConfig, '1000')).toBe('Một-ngàn');
+      expect(spellVnNumber(customConfig, '1000000000')).toBe('Một-tỉ');
     });
 
     it('should capitalize the first letter when capitalizeInitial is false', () => {
@@ -176,13 +202,19 @@ describe('Vietnamese Number Speller', () => {
 
   describe('spellOrDefault function', () => {
     it('should return spelled number for valid input', () => {
-      const config = { separator: ' ', pointText: 'phẩy' };
+      const config = new SpellerConfig({
+        separator: ' ',
+        pointText: 'phẩy'
+      });
       const defaultText = 'Invalid number';
       expect(spellOrDefault('123456', config, defaultText)).toBe('Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu');
     });
 
     it('should return default text for invalid input', () => {
-      const config = { separator: ' ', pointText: 'phẩy' };
+      const config = new SpellerConfig({
+        separator: ' ',
+        pointText: 'phẩy'
+      });
       const defaultText = 'Invalid number';
       expect(spellOrDefault('abc', config, defaultText)).toBe('Invalid number');
     });

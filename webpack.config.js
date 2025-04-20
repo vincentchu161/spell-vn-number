@@ -2,7 +2,7 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-  entry: './src/index.ts',
+  entry: ['core-js/stable', 'regenerator-runtime/runtime', './src/index.ts'],
   output: {
     path: path.resolve(__dirname, 'dist/browser'),
     filename: 'spell-vn-number.min.js',
@@ -35,7 +35,9 @@ module.exports = {
             ecma: 5,
             warnings: false,
             comparisons: false,
-            inline: 2
+            inline: 2,
+            drop_console: true,
+            drop_debugger: true
           },
           mangle: {
             safari10: true
@@ -46,8 +48,19 @@ module.exports = {
             ascii_only: true
           }
         },
-        parallel: true
+        parallel: true,
+        extractComments: false
       })
-    ]
+    ],
+    splitChunks: {
+      cacheGroups: {
+        defaultVendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+          filename: 'vendors.min.js'
+        }
+      }
+    }
   }
 }; 
