@@ -2,21 +2,14 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-  entry: [
-    'core-js/stable',
-    'regenerator-runtime/runtime',
-    './src/index.ts'
-  ],
+  entry: './src/index.ts',
   output: {
     path: path.resolve(__dirname, 'dist/browser'),
     filename: 'spell-vn-number.min.js',
-    library: {
-      name: 'spellVnNumber',
-      type: 'umd',
-      export: 'default',
-      umdNamedDefine: true
-    },
-    globalObject: 'this'
+    library: 'spellVnNumber',
+    libraryTarget: 'umd',
+    globalObject: 'this',
+    umdNamedDefine: true
   },
   resolve: {
     extensions: ['.ts', '.js']
@@ -25,15 +18,7 @@ module.exports = {
     rules: [
       {
         test: /\.ts$/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            compilerOptions: {
-              target: 'es5',
-              module: 'commonjs'
-            }
-          }
-        },
+        use: 'ts-loader',
         exclude: /node_modules/
       }
     ]
@@ -50,9 +35,7 @@ module.exports = {
             ecma: 5,
             warnings: false,
             comparisons: false,
-            inline: 2,
-            drop_console: true,
-            drop_debugger: true
+            inline: 2
           },
           mangle: {
             safari10: true
@@ -63,19 +46,8 @@ module.exports = {
             ascii_only: true
           }
         },
-        parallel: true,
-        extractComments: false
+        parallel: true
       })
-    ],
-    splitChunks: {
-      chunks: 'all',
-      cacheGroups: {
-        defaultVendors: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          filename: 'vendors.min.js'
-        }
-      }
-    }
+    ]
   }
 }; 
