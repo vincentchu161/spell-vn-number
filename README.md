@@ -77,6 +77,8 @@ You can use the library directly in the browser via CDN:
   // Use the global spellVnNumber object
   console.log(spellVnNumber.spell('123456')); 
   // "Một trăm hai mươi ba nghìn bốn trăm năm mươi sáu"
+  console.log(spellVnNumber.spell('9,007,199,254,740,992'))
+  // "Chín triệu không trăm lẻ bảy nghìn một trăm chín mươi chín tỷ hai trăm năm mươi tư triệu bảy trăm bốn mươi nghìn chín trăm chín mươi hai"
 </script>
 ```
 
@@ -112,9 +114,9 @@ const customConfig = new SpellerConfig({
 });
 
 console.log(spellVnNumber(customConfig, '123.45'));
-// "Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
+// "Một-trăm-hai-mươi-ba-phẩy-tư-mươi-lăm" // default: "Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
 console.log(spellVnNumber(customConfig, '123.4500'));
-// "Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
+// "Một-trăm-hai-mươi-ba-phẩy-tư-mươi-lăm" // default: "Một-trăm-hai-mươi-ba-phẩy-bốn-mươi-lăm"
 console.log(spellVnNumber(customConfig, '123.000'));
 // "Một-trăm-hai-mươi-ba-phẩy-không"
 
@@ -316,7 +318,14 @@ console.log(trimRedundantZeros(customConfig, '123.0000')); // "123.0" - one zero
 - Proper handling of Vietnamese spelling rules
 - Special handling for specific digits (1, 4, 5) based on position
 - Browser compatibility including older browsers like IE11
-- Lightweight and performant (<2KB minified and gzipped)
+- Lightweight and performant (~3KB minified and gzipped)
+- Financial Standards Support:
+  - Compliant with Vietnamese Accounting Standards (VAS)
+  - Financial number formatting with proper unit scaling
+- Language Customization:
+  - Supports Vietnamese dialects and regional variations
+  - Customizable pronunciation and unit names
+  - Extensible for new language variants
 
 ## Browser Compatibility
 

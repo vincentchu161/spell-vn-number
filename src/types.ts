@@ -49,29 +49,17 @@ export class InvalidNumberError extends Error {
  * Group and position indices
  * Chỉ số nhóm và vị trí
  */
-export enum Index {
+export enum Idx {
   // Group indices (chỉ số nhóm)
-  BILLION = 0,  // tỷ
-  MILLION = 1,  // triệu
-  THOUSAND = 2, // nghìn
+  BIL = 0,  // BILLION:tỷ
+  MIL = 1,  // MILLION:triệu
+  THO = 2,  // THOUSAND:nghìn
 
   // Position indices (chỉ số vị trí)
-  HUNDREDS = 3, // trăm
-  TENS = 4,     // mươi
-  UNITS = 5     // (empty)
+  HUN = 3,  // HUNDREDS:trăm
+  TEN = 4,  // TENS:mươi
+  UNI = 5   // UNITS:(empty)
 }
-
-/**
- * Number of magnitude groups in the system (billions, millions, thousands)
- * Số lượng nhóm đơn vị trong hệ thống (tỷ, triệu, nghìn)
- */
-export const NUMBER_OF_GROUPS = 3;
-
-/**
- * Number of positions in each group of digits (hundreds, tens, units)
- * Số lượng vị trí trong mỗi nhóm chữ số (hàng trăm, hàng chục, hàng đơn vị)
- */
-export const NUMBER_OF_POSITIONS = 3;
 
 export interface SpecificText {
   // Number specific text
@@ -207,18 +195,18 @@ export class SpellerConfig {
     return this.digitNames[digit];
   }
 
-  getUnitName(index: number): string {
+  findUnit(index: number): string {
     return this.unitNames[index];
   }
 
-  getUnitNameOfMagnitude(magnitudeIndex: number): string {
-    if (magnitudeIndex === Index.BILLION) {
-      return this.unitNames[Index.MILLION];
-    } else if (magnitudeIndex === Index.MILLION) {
-      return this.unitNames[Index.THOUSAND];
+  findMagUnit(magnitudeIndex: number): string {
+    if (magnitudeIndex === Idx.BIL) {
+      return this.unitNames[Idx.MIL];
+    } else if (magnitudeIndex === Idx.MIL) {
+      return this.unitNames[Idx.THO];
     }
-    // magnitudeIndex === Index.THOUSAND
-    return this.unitNames[Index.UNITS];
+    // magnitudeIndex === Index.THO //THOUSAND
+    return this.unitNames[Idx.UNI];
   }
 
   // Getters for specific text
@@ -249,23 +237,23 @@ export class SpellerConfig {
    * - Handling negative signs
    * - Splitting the number into integral and fractional parts
    * - Trimming redundant zeros according to configuration
-   * 
+   *
    * The method can be overridden in a subclass to implement custom parsing logic
    * while maintaining the default behavior through super.parseNumberData().
-   * 
+   *
    * @param input - The number to parse, can be a string, number, or bigint
    * @returns A NumberData object containing:
    *          - isNegative: boolean indicating if the number is negative
    *          - integralPart: string containing the integral part
    *          - fractionalPart: string containing the fractional part
-   * 
+   *
    * @example
    * ```typescript
    * class CustomSpellerConfig extends SpellerConfig {
    *   parseNumberData(input: InputNumber): NumberData {
    *     // Custom parsing logic here
    *     // For example, handle special number formats
-   *     
+   *
    *     // Use default implementation for standard cases
    *     return super.parseNumberData(input);
    *   }

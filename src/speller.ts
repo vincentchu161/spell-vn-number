@@ -1,13 +1,23 @@
 import {
-  Index,
+  Idx,
   InputNumber,
   InvalidFormatError,
   InvalidNumberError,
-  NUMBER_OF_GROUPS,
-  NUMBER_OF_POSITIONS,
-  NumberData,
   SpellerConfig
 } from './types';
+
+/**
+ * Number of magnitude groups in the system (billions, millions, thousands)
+ * Số lượng nhóm đơn vị trong hệ thống (tỷ, triệu, nghìn)
+ */
+const NUM_GROUPS = 3;
+
+/**
+ * Number of positions in each group of digits (hundreds, tens, units)
+ * Số lượng vị trí trong mỗi nhóm chữ số (hàng trăm, hàng chục, hàng đơn vị)
+ */
+const NUM_POSITIONS = 3;
+
 
 /**
  * Process a section of the number by splitting it into groups and spelling each group
@@ -21,22 +31,17 @@ function processPart(spelledParts: string[], config: SpellerConfig, numberStr: s
     return [];
   }
 
-  const mod = numberStr.length % NUMBER_OF_POSITIONS;
-  // Add zeros to the beginning if length is not divisible by NUMBER_OF_POSITIONS
-  let paddedNumber = numberStr;
-  if (mod !== 0) {
-    paddedNumber = '0'.repeat(NUMBER_OF_POSITIONS - mod) + numberStr;
-  }
+  const offset = numberStr.length % NUM_POSITIONS;
+  // Add zeros to the beginning if length is not divisible by NUM_POSITIONS
+  let paddedNumb = offset !== 0 ? '0'.repeat(NUM_POSITIONS - offset) + numberStr :  numberStr;
 
-  const arrNum = paddedNumber.split('');
-  const totalThreeDigitSegments = arrNum.length / NUMBER_OF_POSITIONS; // Not odd because already padded
-
-  const magnitudeMod = totalThreeDigitSegments % NUMBER_OF_GROUPS;
+  const totalThreeDigitSegments = paddedNumb.length / NUM_POSITIONS; // Not odd because already padded
+  const magnitudeMod = totalThreeDigitSegments % NUM_GROUPS;
   let remainingGroups = magnitudeMod === 0
-      ? totalThreeDigitSegments / NUMBER_OF_GROUPS
-      : Math.floor(totalThreeDigitSegments / NUMBER_OF_GROUPS) + 1;
+      ? totalThreeDigitSegments / NUM_GROUPS
+      : Math.floor(totalThreeDigitSegments / NUM_GROUPS) + 1;
 
-  let currentMagnitudeIndex = magnitudeMod !== 0 ? NUMBER_OF_GROUPS - magnitudeMod : Index.BILLION;
+  let currentMagnitudeIndex = magnitudeMod !== 0 ? NUM_GROUPS - magnitudeMod : Idx.BIL;
 
   let isFirst = true;
   let i = 0;
@@ -45,15 +50,15 @@ function processPart(spelledParts: string[], config: SpellerConfig, numberStr: s
     // THOUSAND/MILLION/BILLION (Unit of magnitude groups)
     if (!isFirst) {
       // Add unit for the group
-      spelledParts.push(config.getUnitName(currentMagnitudeIndex));
+      spelledParts.push(config.findUnit(currentMagnitudeIndex));
     }
 
     // Group indices (chỉ số nhóm)
-    for (; currentMagnitudeIndex <= Index.THOUSAND; currentMagnitudeIndex++) {
+    for (; currentMagnitudeIndex < NUM_GROUPS; currentMagnitudeIndex++) {
       // Process three digits at a time
-      const hundredsDigit = arrNum[i];
-      const tensDigit = arrNum[i + 1];
-      const unitsDigit = arrNum[i + 2];
+      const hundredsDigit = paddedNumb[i];
+      const tensDigit = paddedNumb[i + 1];
+      const unitsDigit = paddedNumb[i + 2];
       i += 3;
 
       if (isFirst) {
@@ -88,7 +93,7 @@ function processPart(spelledParts: string[], config: SpellerConfig, numberStr: s
     }
 
     remainingGroups--;
-    currentMagnitudeIndex = Index.BILLION;
+    currentMagnitudeIndex = Idx.BIL;
   }
 
   return spelledParts;
@@ -115,8 +120,8 @@ function spellUnits(
   if (unitsDigit === '0') {
     if ((tensDigit !== '0' || hundredsDigit !== '0')) {
       // Unit digit is zero, but hundreds or tens are not both zero ⇒ still need to read the unit for correct group reading.
-      if (currentMagnitudeIndex !== Index.THOUSAND) {
-        spelledParts.push(config.getUnitNameOfMagnitude(currentMagnitudeIndex));
+      if (currentMagnitudeIndex !== Idx.THO) {
+        spelledParts.push(config.findMagUnit(currentMagnitudeIndex));
       }
     }
     return; // return...
@@ -145,8 +150,8 @@ function spellUnits(
   }
 
   // 2. Add unit if needed (spelled is not empty)
-  if (currentMagnitudeIndex !== Index.THOUSAND) {
-    spelledParts.push(config.getUnitNameOfMagnitude(currentMagnitudeIndex));
+  if (currentMagnitudeIndex !== Idx.THO) {
+    spelledParts.push(config.findMagUnit(currentMagnitudeIndex));
   }
 }
 
@@ -173,7 +178,7 @@ function spellTens(
     spelledParts.push(config.tenText);
   } else {
     spelledParts.push(config.getDigit(tensDigit));
-    spelledParts.push(config.getUnitName(Index.TENS));
+    spelledParts.push(config.findUnit(Idx.TEN));
   }
 }
 
@@ -196,11 +201,11 @@ function spellHundreds(
   if (hundredsDigit === '0') {
     if (!(tensDigit === '0' && unitsDigit === '0')) {
       spelledParts.push(config.getDigit(hundredsDigit));
-      spelledParts.push(config.getUnitName(Index.HUNDREDS));
+      spelledParts.push(config.findUnit(Idx.HUN));
     }
   } else {
     spelledParts.push(config.getDigit(hundredsDigit));
-    spelledParts.push(config.getUnitName(Index.HUNDREDS));
+    spelledParts.push(config.findUnit(Idx.HUN));
   }
 }
 

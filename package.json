@@ -1,6 +1,6 @@
 {
   "name": "spell-vn-number",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Vietnamese number speller",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -10,7 +10,10 @@
   "types": "dist/types/index.d.ts",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist/browser/spell-vn-number.min.js",
+    "dist/cjs",
+    "dist/esm",
+    "dist/types"
   ],
   "engines": {
     "node": ">=14.0.0"
@@ -22,9 +25,10 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:types": "tsc -p tsconfig.types.json",
     "build:browser": "webpack --mode production",
+    "build:analyze": "webpack --mode production --env analyze=true",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "clean": "rimraf dist coverage",
+    "clean": "rimraf dist coverage temp",
     "prepublishOnly": "npm run test && npm run build",
     "prepare": "npm run build",
     "preversion": "npm run test",
@@ -40,6 +44,8 @@
     "url": "https://github.com/vincentchu161/spell-vn-number/issues"
   },
   "keywords": [
+    "number to vietnamese",
+    "Vietnamese number speller",
     "vietnamese",
     "number",
     "speller",
@@ -49,14 +55,12 @@
     "vietnamese-language",
     "text-to-speech",
     "number-to-text",
-    "localization",
-    "i18n",
-    "internationalization",
-    "numeral",
-    "spell-out",
-    "typescript",
-    "javascript",
-    "browser-compatible"
+    "vietnamese number to word",
+    "read",
+    "browser-compatible",
+    "currency",
+    "large number",
+    "spell vn number"
   ],
   "author": {
     "name": "vincentchu",
@@ -73,6 +77,7 @@
     "ts-loader": "^9.5.2",
     "typescript": "^5.0.4",
     "webpack": "^5.99.5",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4"
   },
   "browserslist": [
