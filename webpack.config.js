@@ -13,10 +13,10 @@ module.exports = {
     library: {
       name: 'spellVnNumber',
       type: 'umd',
-      export: 'default'
+      export: 'default',
+      umdNamedDefine: true
     },
-    globalObject: 'this',
-    umdNamedDefine: true
+    globalObject: 'this'
   },
   resolve: {
     extensions: ['.ts', '.js']
@@ -68,11 +68,11 @@ module.exports = {
       })
     ],
     splitChunks: {
+      chunks: 'all',
       cacheGroups: {
         defaultVendors: {
           test: /[\\/]node_modules[\\/]/,
           name: 'vendors',
-          chunks: 'all',
           filename: 'vendors.min.js'
         }
       }
